@@ -60,30 +60,21 @@ body {
 /* ═══════════ HEADER ═══════════ */
 header {
   position: relative;
-  padding: 40px 24px 32px;
+  padding: 28px 24px 22px;
   text-align: center;
-  background: linear-gradient(180deg, #edf2f7 0%, #f7f8fc 100%);
+  background: #fff;
   border-bottom: 1px solid var(--border);
 }
-header::before {
-  content: '';
-  position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
-  width: 600px; height: 180px;
-  background: radial-gradient(ellipse, rgba(37,99,235,.06) 0%, transparent 70%);
-  pointer-events: none;
-}
-.flag { display: inline-flex; flex-direction: column; gap: 2px; border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
-.flag span { display: block; width: 36px; height: 7px; }
+.flag { display: inline-flex; flex-direction: column; gap: 1px; border-radius: 3px; overflow: hidden; margin-bottom: 6px; }
+.flag span { display: block; width: 24px; height: 4px; }
 .f1{background:#1a1a1a} .f2{background:#c62828} .f3{background:#f9a825}
 
 h1 {
-  font-size: 2.2rem; font-weight: 900; letter-spacing: -1px;
-  background: linear-gradient(135deg, #1a1a2e 0%, #2563eb 50%, #7c3aed 100%);
-  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
-  margin-bottom: 8px;
+  font-size: 1.8rem; font-weight: 900; letter-spacing: -0.5px;
+  color: var(--text); margin-bottom: 4px;
 }
-.sub { color: var(--muted); font-size: .88rem; max-width: 540px; margin: 0 auto 16px; }
-.sub strong { color: var(--text2); }
+h1 span { color: var(--primary); }
+.sub { color: var(--muted); font-size: .82rem; margin: 0 auto; }
 
 /* Badges */
 .badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
@@ -453,23 +444,12 @@ footer a:hover { color: var(--text); }
 
 <header>
   <div class="flag"><span class="f1"></span><span class="f2"></span><span class="f3"></span></div>
-  <h1>LinguaWeg — Промты</h1>
-  <p class="sub">Образовательные AI-промты для текстов <strong>Lingua.com</strong>.<br>
-  7 типов проработки каждого текста: от перевода до рефлексии по Лефевру.<br>
-  Совместимо с <strong>ChatGPT · Claude · Gemini · Grok</strong>.</p>
-  <div class="badges">
-    <span class="badge b1">📖 Оригинальный текст</span>
-    <span class="badge b1">📝 Перевод + грамматика</span>
-    <span class="badge b2">📚 Словарь + упражнения</span>
-    <span class="badge b3">🎭 Диалог-тренажёр</span>
-    <span class="badge b4">🏛 Разбор по Сократу</span>
-    <span class="badge b5">🔄 Синонимизация</span>
-    <span class="badge b4">🪞 Пересказ по Лефевру</span>
-  </div>
+  <h1>Lingua<span>Weg</span></h1>
+  <p class="sub">Немецкий A2 — тексты · упражнения · AI-промты</p>
 </header>
 
 <div class="wrap">
-  <div class="stats" id="stats"></div>
+  <!-- stats removed -->
 
   <!-- LIST VIEW -->
   <div id="list">
@@ -516,6 +496,30 @@ footer a:hover { color: var(--text); }
 <script src="lessons/lesson-19.js"></script>
 <script src="lessons/lesson-20.js"></script>
 <script src="lessons/lesson-21.js"></script>
+<!-- PREMIUM A2 -->
+<script src="lessons/lesson-22.js"></script>
+<script src="lessons/lesson-23.js"></script>
+<script src="lessons/lesson-24.js"></script>
+<script src="lessons/lesson-25.js"></script>
+<script src="lessons/lesson-26.js"></script>
+<script src="lessons/lesson-27.js"></script>
+<script src="lessons/lesson-28.js"></script>
+<script src="lessons/lesson-29.js"></script>
+<script src="lessons/lesson-30.js"></script>
+<script src="lessons/lesson-31.js"></script>
+<script src="lessons/lesson-32.js"></script>
+<script src="lessons/lesson-33.js"></script>
+<script src="lessons/lesson-34.js"></script>
+<script src="lessons/lesson-35.js"></script>
+<script src="lessons/lesson-36.js"></script>
+<script src="lessons/lesson-37.js"></script>
+<script src="lessons/lesson-38.js"></script>
+<script src="lessons/lesson-39.js"></script>
+<script src="lessons/lesson-40.js"></script>
+<script src="lessons/lesson-41.js"></script>
+<script src="lessons/lesson-42.js"></script>
+<script src="lessons/lesson-43.js"></script>
+<script src="lessons/lesson-44.js"></script>
 
 <!-- ═══════════ APP LOGIC ═══════════ -->
 <script>
@@ -548,16 +552,7 @@ function fillPrompt(lesson, promptText) {
 }
 
 // ─── RENDER STATS ───
-function renderStats() {
-  var std = LESSONS.filter(function(l){ return l.section !== 'premium'; }).length;
-  var prm = LESSONS.filter(function(l){ return l.section === 'premium'; }).length;
-  var n = LESSONS.length;
-  document.getElementById('stats').innerHTML =
-    '<div class="scard"><div class="sico">📚</div><div><div class="slbl">Текстов</div><div class="sval">' + std + ' Стандарт + ' + prm + ' Премиум</div></div></div>' +
-    '<div class="scard"><div class="sico">🤖</div><div><div class="slbl">Промтов</div><div class="sval">8 табов × ' + n + ' = ' + (n*8) + '</div></div></div>' +
-    '<div class="scard"><div class="sico">🌐</div><div><div class="slbl">Совместимость</div><div class="sval">ChatGPT · Claude · Gemini</div></div></div>' +
-    '<div class="scard"><div class="sico">📊</div><div><div class="slbl">Уровни</div><div class="sval">A2 → B1</div></div></div>';
-}
+function renderStats() { /* removed */ }
 
 // ─── RENDER LESSON GRID ───
 function renderGrid() {
