@@ -1,0 +1,13 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(pip install:*)",
+      "Bash(python tools/extract_content.py)",
+      "Bash(python -c \":*)",
+      "mcp__Claude_Preview__preview_start",
+      "Bash(curl -s http://localhost:8090/)",
+      "Bash(netstat -ano)",
+      "Bash(wc -l C:/Lingua/Github/lingua/lessons/lesson-*.js)"
+    ]
+  }
+}

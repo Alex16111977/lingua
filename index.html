@@ -3,502 +3,1291 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>DeutschWeg — Образовательные промты для Lingua.com</title>
+<title>LinguaWeg — AI-промты для изучения немецкого</title>
+<script>
+// Theme init (before CSS to prevent FOUC)
+(function(){
+  var t=localStorage.getItem('theme');
+  if(t==='dark'||(!t&&matchMedia('(prefers-color-scheme:dark)').matches))
+    document.documentElement.classList.add('dark');
+})();
+</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet">
 <style>
-  @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;900&family=JetBrains+Mono:wght@400;600&display=swap');
+/* ═══════════ DESIGN SYSTEM ═══════════ */
+:root {
+  /* Light theme — warm white for better exercise contrast */
+  --bg:       #f0f2f8;
+  --bg2:      #e4e8f0;
+  --card:     #ffffff;
+  --border:   #e2e8f0;
+  --border2:  #cbd5e1;
+  --primary:  #2563eb;
+  --primary2: #1d4ed8;
+  --accent:   #7c3aed;
+  --green:    #16a34a;
+  --gold:     #d97706;
+  --rose:     #dc2626;
+  --text:     #1a1a2e;
+  --text2:    #334155;
+  --muted:    #718096;
+  --dim:      #94a3b8;
 
-  :root {
-    --bg:       #010d1f;
-    --card:     #041d35;
-    --border:   #0a3a5c;
-    --border2:  #0d4f7a;
-    --sky:      #0096c7;
-    --sky2:     #00b4d8;
-    --sky3:     #48cae4;
-    --cloud:    #90e0ef;
-    --white:    #caf0f8;
-    --text:     #d8f0ff;
-    --muted:    #6ab4d8;
-    --dim:      #3a7a9c;
-    --gold:     #ffd60a;
-    --green:    #06d6a0;
-  }
-  *{box-sizing:border-box;margin:0;padding:0}
-  body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);min-height:100vh;line-height:1.6}
+  /* Grammar colors — adapted for light bg */
+  --gram-masc: #2563eb;  /* der = синий */
+  --gram-fem:  #dc2626;  /* die = красный */
+  --gram-neut: #16a34a;  /* das = зелёный */
+  --gram-verb: #7c3aed;  /* глагол = фиолетовый */
 
-  /* HEADER */
-  header{
-    position:relative;overflow:hidden;
-    padding:48px 24px 36px;text-align:center;
-    background:linear-gradient(180deg,#000d1a 0%,#021428 40%,#032b55 100%);
-    border-bottom:1px solid var(--border);
-  }
-  header::before{
-    content:'';position:absolute;bottom:-50px;left:50%;transform:translateX(-50%);
-    width:700px;height:220px;
-    background:radial-gradient(ellipse at center bottom,rgba(0,150,199,.22) 0%,rgba(0,180,216,.08) 45%,transparent 70%);
-    pointer-events:none;
-  }
-  header::after{
-    content:'· · · ✦ · · ✦ · · ✦ · · ·';
-    position:absolute;top:12px;left:50%;transform:translateX(-50%);
-    font-size:.45rem;color:rgba(144,224,239,.25);letter-spacing:10px;pointer-events:none;
-  }
-  .flag{display:inline-flex;flex-direction:column;gap:2px;border-radius:4px;overflow:hidden;box-shadow:0 2px 8px rgba(0,0,0,.5);margin-bottom:14px}
-  .flag span{display:block;width:38px;height:7px}
-  .f1{background:#181818}.f2{background:#c62828}.f3{background:#f9a825}
-  h1{
-    font-size:2.4rem;font-weight:900;letter-spacing:-1px;
-    background:linear-gradient(135deg,#caf0f8 0%,#48cae4 35%,#0096c7 65%,#90e0ef 100%);
-    -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
-    margin-bottom:10px;
-  }
-  .sub{color:var(--muted);font-size:.9rem;max-width:560px;margin:0 auto 20px;line-height:1.5}
-  .sub strong{color:var(--white)}
-  .badges{display:flex;flex-wrap:wrap;justify-content:center;gap:8px}
-  .badge{padding:4px 13px;border-radius:20px;font-size:.74rem;font-weight:600;border:1px solid}
-  .bsky{background:rgba(0,150,199,.13);color:var(--sky3);border-color:rgba(0,150,199,.3)}
-  .bgold{background:rgba(255,214,10,.1);color:var(--gold);border-color:rgba(255,214,10,.25)}
-  .bgreen{background:rgba(6,214,160,.1);color:var(--green);border-color:rgba(6,214,160,.25)}
-  .bcloud{background:rgba(144,224,239,.08);color:var(--white);border-color:rgba(144,224,239,.2)}
+  --radius: 12px;
+  --font: 'Inter', system-ui, sans-serif;
+  --mono: 'JetBrains Mono', monospace;
+}
 
-  /* STATS */
-  .wrap{max-width:860px;margin:0 auto;padding:0 20px}
-  .stats-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:10px;margin-top:26px}
-  .scard{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;align-items:center;gap:11px;transition:border-color .2s}
-  .scard:hover{border-color:var(--border2)}
-  .sico{font-size:1.3rem;width:36px;height:36px;display:flex;align-items:center;justify-content:center;background:rgba(0,150,199,.1);border-radius:8px;flex-shrink:0}
-  .slabel{font-size:.7rem;color:var(--dim);margin-bottom:2px}
-  .sval{font-size:.85rem;font-weight:600}
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: var(--font);
+  background: var(--bg);
+  color: var(--text);
+  min-height: 100vh;
+  line-height: 1.6;
+}
 
-  /* SECTION TITLE */
-  .stitle{font-size:.7rem;color:var(--dim);text-transform:uppercase;letter-spacing:1.5px;margin:24px 0 12px;display:flex;align-items:center;gap:10px}
-  .stitle::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,var(--border),transparent)}
+/* ═══════════ LAYOUT ═══════════ */
+.wrap { max-width: 920px; margin: 0 auto; padding: 0 20px; }
 
-  /* HOW TO */
-  .steps{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:10px}
-  .step{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:12px 14px;display:flex;gap:10px}
-  .sn{width:22px;height:22px;border-radius:50%;background:linear-gradient(135deg,#0077b6,#00b4d8);color:#fff;font-size:.68rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;margin-top:2px}
-  .step p{font-size:.8rem;line-height:1.4}
+/* ═══════════ HEADER ═══════════ */
+header {
+  position: relative;
+  padding: 40px 24px 32px;
+  text-align: center;
+  background: linear-gradient(180deg, #edf2f7 0%, #f7f8fc 100%);
+  border-bottom: 1px solid var(--border);
+}
+header::before {
+  content: '';
+  position: absolute; bottom: -40px; left: 50%; transform: translateX(-50%);
+  width: 600px; height: 180px;
+  background: radial-gradient(ellipse, rgba(37,99,235,.06) 0%, transparent 70%);
+  pointer-events: none;
+}
+.flag { display: inline-flex; flex-direction: column; gap: 2px; border-radius: 4px; overflow: hidden; margin-bottom: 12px; }
+.flag span { display: block; width: 36px; height: 7px; }
+.f1{background:#1a1a1a} .f2{background:#c62828} .f3{background:#f9a825}
 
-  /* LEGEND */
-  .legend-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:10px}
-  .li{background:var(--card);border:1px solid var(--border);border-radius:10px;padding:13px 15px;display:flex;gap:11px}
-  .lico{width:38px;height:38px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.15rem;flex-shrink:0}
-  .lb{background:rgba(0,150,199,.13)}.lg{background:rgba(255,214,10,.1)}.ll{background:rgba(6,214,160,.1)}
-  .lname{font-size:.88rem;font-weight:700;margin-bottom:3px}
-  .ldesc{font-size:.74rem;color:var(--muted);line-height:1.4}
+h1 {
+  font-size: 2.2rem; font-weight: 900; letter-spacing: -1px;
+  background: linear-gradient(135deg, #1a1a2e 0%, #2563eb 50%, #7c3aed 100%);
+  -webkit-background-clip: text; -webkit-text-fill-color: transparent; background-clip: text;
+  margin-bottom: 8px;
+}
+.sub { color: var(--muted); font-size: .88rem; max-width: 540px; margin: 0 auto 16px; }
+.sub strong { color: var(--text2); }
 
-  /* HORIZON */
-  .horizon{height:1px;background:linear-gradient(90deg,transparent,var(--border2) 30%,var(--sky) 50%,var(--border2) 70%,transparent);margin:10px 0 30px;opacity:.45}
+/* Badges */
+.badges { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.badge {
+  padding: 3px 11px; border-radius: 16px; font-size: .7rem; font-weight: 600;
+  border: 1px solid;
+}
+.b1{background:rgba(37,99,235,.06);color:var(--primary);border-color:rgba(37,99,235,.2)}
+.b2{background:rgba(217,119,6,.06);color:var(--gold);border-color:rgba(217,119,6,.18)}
+.b3{background:rgba(22,163,74,.06);color:var(--green);border-color:rgba(22,163,74,.18)}
+.b4{background:rgba(124,58,237,.06);color:var(--accent);border-color:rgba(124,58,237,.18)}
+.b5{background:rgba(220,38,38,.06);color:var(--rose);border-color:rgba(220,38,38,.18)}
 
-  /* TEXT BLOCK */
-  .tblock{margin-bottom:42px}
-  .thead{display:flex;align-items:center;gap:12px;margin-bottom:13px;padding-bottom:11px;border-bottom:1px solid var(--border)}
-  .tnum{width:38px;height:38px;border-radius:10px;background:linear-gradient(135deg,#023e8a,#0096c7);color:#fff;font-size:.86rem;font-weight:800;display:flex;align-items:center;justify-content:center;flex-shrink:0;box-shadow:0 2px 10px rgba(0,150,199,.25)}
-  .tinfo{flex:1;min-width:0}
-  .tmeta{font-size:.7rem;color:var(--dim);margin-bottom:2px}
-  .ttitle{font-size:1.18rem;font-weight:700;color:var(--white)}
-  .tlink{flex-shrink:0;color:var(--sky3);font-size:.74rem;text-decoration:none;background:rgba(0,180,216,.07);border:1px solid rgba(0,180,216,.2);padding:5px 12px;border-radius:20px;transition:all .2s;white-space:nowrap}
-  .tlink:hover{background:rgba(0,180,216,.16);color:#fff;border-color:var(--sky2)}
+/* ═══════════ STATS ═══════════ */
+.stats { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 10px; margin-top: 24px; }
+.scard {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 12px 14px; display: flex; align-items: center; gap: 10px;
+  transition: border-color .2s;
+}
+.scard:hover { border-color: var(--border2); }
+.sico { font-size: 1.2rem; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; background: rgba(37,99,235,.06); border-radius: 8px; }
+.slbl { font-size: .65rem; color: var(--dim); text-transform: uppercase; letter-spacing: .5px; }
+.sval { font-size: .82rem; font-weight: 600; }
 
-  /* PROMPT CARDS */
-  .cards{display:grid;gap:9px}
-  .pc{background:var(--card);border:1px solid var(--border);border-radius:12px;overflow:hidden;transition:border-color .2s}
-  .pc:hover{border-color:var(--border2)}
-  .pc.open{border-color:rgba(0,150,199,.38)}
-  .phead{display:flex;align-items:center;justify-content:space-between;padding:12px 15px;cursor:pointer;user-select:none;gap:12px}
-  .pleft{display:flex;align-items:center;gap:11px}
-  .pico{width:35px;height:35px;border-radius:9px;display:flex;align-items:center;justify-content:center;font-size:1.05rem;flex-shrink:0}
-  .pt1{background:rgba(0,150,199,.13)}.pt2{background:rgba(255,214,10,.1)}.pt3{background:rgba(6,214,160,.1)}
-  .plabel{font-size:.68rem;color:var(--dim);text-transform:uppercase;letter-spacing:.8px;margin-bottom:1px}
-  .pname{font-size:.86rem;font-weight:600}
-  .phint{font-size:.72rem;color:var(--muted)}
-  .pright{display:flex;gap:7px;align-items:center;flex-shrink:0}
-  .bcopy{padding:5px 12px;border-radius:7px;border:1px solid var(--border2);background:rgba(0,150,199,.07);color:var(--sky3);font-size:.72rem;font-weight:600;cursor:pointer;transition:all .2s;white-space:nowrap}
-  .bcopy:hover{background:rgba(0,150,199,.18);border-color:var(--sky2);color:#fff}
-  .bcopy.ok{background:rgba(6,214,160,.13);border-color:var(--green);color:var(--green)}
-  .chev{color:var(--dim);font-size:.78rem;transition:transform .2s}
-  .pc.open .chev{transform:rotate(180deg)}
-  .pbody{display:none;border-top:1px solid var(--border);padding:15px}
-  .pc.open .pbody{display:block}
-  .codebox{
-    background:#010a14;border:1px solid #0a2a40;border-radius:8px;
-    padding:15px;font-family:'JetBrains Mono',monospace;font-size:.74rem;
-    line-height:1.75;color:#a8d8f0;white-space:pre-wrap;word-break:break-word;
-    max-height:450px;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#0a3050 transparent;
-  }
-  .codebox::-webkit-scrollbar{width:5px}
-  .codebox::-webkit-scrollbar-thumb{background:#0a3050;border-radius:3px}
+/* Section titles */
+.stitle {
+  font-size: .68rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1.5px;
+  margin: 24px 0 12px; display: flex; align-items: center; gap: 10px;
+}
+.stitle::after { content: ''; flex: 1; height: 1px; background: linear-gradient(90deg, var(--border), transparent); }
 
-  footer{text-align:center;padding:26px 20px;color:var(--dim);font-size:.76rem;border-top:1px solid var(--border)}
-  footer a{color:var(--sky3);text-decoration:none}
-  footer a:hover{color:var(--white)}
+/* ═══════════ LESSON GRID (list view) ═══════════ */
+.grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 12px; }
+.lcard {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 16px; cursor: pointer; transition: all .2s; text-decoration: none; color: inherit; display: block;
+}
+.lcard:hover { border-color: var(--primary); transform: translateY(-2px); box-shadow: 0 4px 20px rgba(37,99,235,.08); }
+.lcard-premium { border-color: rgba(217,119,6,.3); }
+.lcard-premium:hover { border-color: var(--gold); box-shadow: 0 4px 20px rgba(217,119,6,.1); }
+.lcard-head { display: flex; align-items: center; gap: 10px; margin-bottom: 8px; }
+.lnum {
+  width: 34px; height: 34px; border-radius: 8px;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #fff;
+  font-size: .8rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.ltitle { font-size: 1rem; font-weight: 700; }
+.lmeta { font-size: .72rem; color: var(--dim); }
+.ltags { display: flex; flex-wrap: wrap; gap: 4px; margin-top: 6px; }
+.ltag { font-size: .62rem; padding: 2px 8px; border-radius: 10px; background: rgba(37,99,235,.08); color: var(--muted); border: 1px solid rgba(37,99,235,.12); }
+
+/* ═══════════ LESSON DETAIL VIEW ═══════════ */
+#detail { display: none; }
+.back-btn {
+  display: inline-flex; align-items: center; gap: 6px; color: var(--primary);
+  font-size: .82rem; font-weight: 600; text-decoration: none; margin-bottom: 16px;
+  cursor: pointer; background: none; border: none;
+}
+.back-btn:hover { color: var(--text); }
+
+.detail-head {
+  display: flex; align-items: center; gap: 14px; padding-bottom: 14px;
+  border-bottom: 1px solid var(--border); margin-bottom: 20px;
+}
+.detail-num {
+  width: 44px; height: 44px; border-radius: 10px;
+  background: linear-gradient(135deg, #1d4ed8, #3b82f6); color: #fff;
+  font-size: 1rem; font-weight: 800;
+  display: flex; align-items: center; justify-content: center; flex-shrink: 0;
+}
+.detail-title { font-size: 1.3rem; font-weight: 700; }
+.detail-meta { font-size: .74rem; color: var(--dim); }
+.detail-link {
+  margin-left: auto; flex-shrink: 0;
+  color: var(--primary); font-size: .72rem; text-decoration: none;
+  background: rgba(37,99,235,.07); border: 1px solid rgba(37,99,235,.2);
+  padding: 5px 12px; border-radius: 16px; white-space: nowrap;
+}
+.detail-link:hover { background: rgba(37,99,235,.12); color: var(--primary2); }
+
+/* ═══════════ TABS ═══════════ */
+.tabs { display: flex; flex-wrap: wrap; gap: 4px; margin-bottom: 16px; }
+.tab-btn {
+  display: flex; align-items: center; gap: 5px;
+  padding: 7px 12px; border-radius: 8px; font-size: .72rem; font-weight: 600;
+  background: var(--card); border: 1px solid var(--border); color: var(--muted);
+  cursor: pointer; transition: all .2s; white-space: nowrap;
+}
+.tab-btn:hover { border-color: var(--border2); color: var(--text2); }
+.tab-btn.active { background: rgba(37,99,235,.1); border-color: var(--primary); color: var(--primary); }
+.tab-ico { font-size: .9rem; }
+
+/* Tab content */
+.tab-panel { display: none; }
+.tab-panel.active { display: block; }
+
+/* Prompt card */
+.prompt-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  overflow: hidden;
+}
+.prompt-instr {
+  padding: 14px 16px; font-size: .8rem; color: var(--text2); line-height: 1.5;
+  border-bottom: 1px solid var(--border); background: rgba(37,99,235,.03);
+}
+.prompt-instr strong { color: var(--primary); font-weight: 600; }
+.prompt-actions {
+  padding: 10px 16px; display: flex; align-items: center; gap: 8px;
+  border-bottom: 1px solid var(--border);
+}
+.copy-btn {
+  padding: 6px 14px; border-radius: 8px;
+  border: 1px solid var(--border2); background: rgba(37,99,235,.07);
+  color: var(--primary); font-size: .74rem; font-weight: 600;
+  cursor: pointer; transition: all .2s;
+}
+.copy-btn:hover { background: rgba(37,99,235,.12); border-color: var(--primary); color: var(--primary2); }
+.copy-btn.ok { background: rgba(74,222,128,.12); border-color: var(--green); color: var(--green); }
+
+.prompt-body {
+  padding: 16px;
+  font-family: var(--mono); font-size: .73rem; line-height: 1.75;
+  color: var(--text2); white-space: pre-wrap; word-break: break-word;
+  max-height: 500px; overflow-y: auto;
+  scrollbar-width: thin; scrollbar-color: var(--border2) transparent;
+}
+.prompt-body::-webkit-scrollbar { width: 5px; }
+.prompt-body::-webkit-scrollbar-thumb { background: var(--border2); border-radius: 3px; }
+
+/* ═══════════ TEXT VIEW (type 1) ═══════════ */
+.text-view { padding: 20px; font-size: 1.05rem; line-height: 1.8; }
+.text-view p { margin-bottom: 14px; }
+.vocab-grid {
+  display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 8px;
+  margin-top: 16px;
+}
+.vocab-item {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 8px;
+  padding: 10px 12px; font-size: .78rem;
+}
+.vocab-de { font-weight: 700; }
+.vocab-de.masc { color: var(--gram-masc); }
+.vocab-de.fem { color: var(--gram-fem); }
+.vocab-de.neut { color: var(--gram-neut); }
+.vocab-ru { color: var(--muted); margin-left: 6px; }
+.vocab-ex { color: var(--dim); font-size: .7rem; margin-top: 3px; font-style: italic; }
+
+/* ═══════════ NAV ═══════════ */
+.lesson-nav {
+  display: flex; justify-content: space-between; margin-top: 24px; padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+.nav-btn {
+  color: var(--primary); font-size: .8rem; font-weight: 600; text-decoration: none;
+  cursor: pointer; background: none; border: none; padding: 6px 0;
+}
+.nav-btn:hover { color: var(--text); }
+.nav-btn:disabled { color: var(--dim); cursor: default; }
+
+/* ═══════════ FOOTER ═══════════ */
+footer {
+  text-align: center; padding: 24px 20px; color: var(--dim); font-size: .72rem;
+  border-top: 1px solid var(--border); margin-top: 40px;
+}
+footer a { color: var(--primary); text-decoration: none; }
+footer a:hover { color: var(--text); }
+
+/* ═══════════ RESPONSIVE ═══════════ */
+@media (max-width: 640px) {
+  h1 { font-size: 1.6rem; }
+  .tabs { gap: 3px; }
+  .tab-btn { padding: 6px 8px; font-size: .66rem; }
+  .grid { grid-template-columns: 1fr; }
+  .detail-link { display: none; }
+  .wmatch-grid { grid-template-columns: 1fr !important; }
+  .wmatch-col { min-height: auto; }
+}
+
+/* ═══════════ EXERCISES ═══════════ */
+.ex-accordion { margin-bottom: 10px; }
+.ex-accordion summary {
+  padding: 12px 16px; cursor: pointer; font-weight: 600; font-size: .88rem;
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  color: var(--text); list-style: none; display: flex; align-items: center; gap: 8px;
+  transition: all .2s;
+}
+.ex-accordion summary::-webkit-details-marker { display: none; }
+.ex-accordion summary::before { content: '▶'; font-size: .6rem; color: var(--dim); transition: transform .2s; }
+.ex-accordion[open] summary::before { transform: rotate(90deg); }
+.ex-accordion[open] summary { border-color: var(--primary); border-radius: var(--radius) var(--radius) 0 0; }
+.ex-accordion summary:hover { border-color: var(--border2); }
+.ex-body {
+  padding: 18px; border: 2px solid var(--border); border-top: none;
+  border-radius: 0 0 var(--radius) var(--radius); background: #ffffff;
+}
+
+/* Progress bar */
+.ex-progress { display: flex; align-items: center; gap: 10px; margin-bottom: 14px; }
+.ex-progress-bar { flex: 1; height: 6px; background: var(--border); border-radius: 3px; overflow: hidden; }
+.ex-progress-fill { height: 100%; background: var(--primary); border-radius: 3px; transition: width .3s; }
+.ex-progress-text { font-size: .72rem; color: var(--muted); white-space: nowrap; }
+
+/* Mode toggle */
+.ex-mode { display: flex; gap: 4px; margin-bottom: 12px; }
+.ex-mode-btn {
+  padding: 5px 14px; border-radius: 16px; font-size: .72rem; font-weight: 600;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer;
+}
+.ex-mode-btn.active { background: rgba(37,99,235,.12); border-color: var(--primary); color: var(--primary); }
+
+/* ── Vocab Quiz ── */
+.vq-card {
+  background: var(--card); border: 1px solid var(--border); border-radius: var(--radius);
+  padding: 24px; text-align: center; margin-bottom: 12px;
+}
+.vq-word { font-size: 1.4rem; font-weight: 700; margin-bottom: 4px; }
+.vq-hint { font-size: .76rem; color: var(--dim); margin-bottom: 16px; }
+.vq-options { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.vq-opt {
+  padding: 12px; border-radius: 10px; font-size: .84rem; font-weight: 600;
+  border: 2px solid #a5b4fc; background: #eef2ff; color: #3730a3;
+  cursor: pointer; transition: all .2s; text-align: center;
+}
+.vq-opt:hover { border-color: #6366f1; background: #e0e7ff; transform: translateY(-1px); }
+.vq-opt.correct { background: #dcfce7; border-color: #16a34a; color: #15803d; font-weight: 700; animation: correctPulse .4s; }
+.vq-opt.wrong { background: #fee2e2; border-color: #dc2626; color: #b91c1c; animation: shake .4s; }
+.vq-opt:disabled { cursor: default; opacity: .7; }
+.vq-result { text-align: center; padding: 20px; font-size: .9rem; }
+.vq-result .score { font-size: 2rem; font-weight: 900; color: var(--primary); }
+
+/* ── Word Matching ── */
+.wmatch-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.wmatch-col-title { font-size: .7rem; color: var(--dim); text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; text-align: center; }
+.wmatch-word {
+  padding: 10px 14px; border-radius: 8px; font-size: .82rem; font-weight: 600;
+  cursor: pointer; transition: all .2s; text-align: center; margin-bottom: 6px;
+}
+.wmatch-word[data-side="de"] { border: 2px solid #93c5fd; background: #dbeafe; color: #1e40af; }
+.wmatch-word[data-side="de"]:hover { border-color: #3b82f6; background: #bfdbfe; }
+.wmatch-word[data-side="ru"] { border: 2px solid #fbbf24; background: #fef3c7; color: #92400e; }
+.wmatch-word[data-side="ru"]:hover { border-color: #d97706; background: #fde68a; }
+.wmatch-word.selected { border-color: #7c3aed !important; background: #ede9fe !important; color: #5b21b6 !important; box-shadow: 0 0 0 3px rgba(124,58,237,.25); }
+.wmatch-word.matched { background: #dcfce7 !important; border-color: #16a34a !important; color: #15803d !important; cursor: default; }
+.wmatch-word.wrong { animation: shake .4s; border-color: var(--rose); }
+
+/* ── Article Quiz ── */
+.aq-legend { display: flex; gap: 12px; margin-bottom: 14px; flex-wrap: wrap; }
+.aq-legend-item { font-size: .72rem; display: flex; align-items: center; gap: 4px; }
+.aq-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(220px, 1fr)); gap: 8px; }
+.aq-item {
+  background: #ffffff; border: 2px solid var(--border); border-radius: 10px;
+  padding: 14px; text-align: center;
+}
+.aq-item.solved { background: #f0fdf4; border-color: #4ade80; }
+.aq-noun { font-size: 1rem; font-weight: 700; margin-bottom: 2px; }
+.aq-trans { font-size: .74rem; color: var(--muted); margin-bottom: 8px; }
+.aq-btns { display: flex; gap: 6px; justify-content: center; }
+.aq-btn {
+  padding: 5px 14px; border-radius: 6px; font-size: .76rem; font-weight: 700;
+  border: 1px solid; cursor: pointer; transition: all .2s;
+}
+.aq-btn.der { color: #1d4ed8; border-color: #93c5fd; background: #dbeafe; }
+.aq-btn.die { color: #b91c1c; border-color: #fca5a5; background: #fee2e2; }
+.aq-btn.das { color: #15803d; border-color: #86efac; background: #dcfce7; }
+.aq-btn:hover { filter: brightness(1.2); }
+.aq-btn.correct { background: #dcfce7 !important; border-color: #16a34a !important; color: #15803d !important; font-weight: 800; }
+.aq-btn.wrong { animation: shake .4s; }
+.aq-btn:disabled { cursor: default; opacity: .5; }
+
+/* ── Sentence Builder ── */
+.sb-card {
+  background: #ffffff; border: 2px solid var(--border); border-radius: 10px;
+  padding: 16px; margin-bottom: 12px;
+}
+.sb-card.done { border-color: #16a34a; background: #f0fdf4; }
+.sb-hint { font-size: .78rem; color: var(--muted); margin-bottom: 8px; font-style: italic; }
+.sb-num { font-size: .68rem; color: var(--muted); margin-bottom: 4px; font-weight: 600; }
+.sb-result {
+  min-height: 44px; padding: 10px 12px; margin-bottom: 10px;
+  border: 2px dashed #93c5fd; border-radius: 8px; background: #eff6ff;
+  font-size: .84rem; color: var(--text); display: flex; flex-wrap: wrap; gap: 4px; align-items: center;
+}
+.sb-result-word {
+  padding: 5px 10px; background: #2563eb; border-radius: 6px; font-size: .8rem; font-weight: 600;
+  cursor: pointer; color: #ffffff;
+}
+.sb-result-word:hover { background: #1d4ed8; }
+.sb-pool { display: flex; flex-wrap: wrap; gap: 5px; margin-bottom: 8px; }
+.sb-frag {
+  padding: 7px 14px; border-radius: 8px; font-size: .82rem; font-weight: 600;
+  border: 2px solid #2563eb; background: #dbeafe; color: #1e40af;
+  cursor: pointer; transition: all .15s;
+}
+.sb-frag:hover { background: #bfdbfe; border-color: #1d4ed8; transform: translateY(-1px); }
+.sb-frag.used { opacity: .25; cursor: default; pointer-events: none; border-color: var(--border); background: var(--bg2); }
+.sb-actions { display: flex; gap: 6px; }
+.sb-btn {
+  padding: 4px 10px; border-radius: 6px; font-size: .7rem;
+  border: 1px solid var(--border); background: var(--card); color: var(--muted); cursor: pointer;
+}
+.sb-btn:hover { border-color: var(--border2); color: var(--text); }
+.sb-feedback { font-size: .78rem; margin-top: 6px; }
+.sb-feedback.ok { color: var(--green); }
+.sb-feedback.err { color: var(--rose); }
+.sb-answer {
+  margin-top: 8px; padding: 10px 14px; border-radius: 8px;
+  background: #fef3c7; border: 2px solid #f6d365; color: #92400e;
+  font-size: .88rem; font-weight: 600; animation: fadeInUp .2s;
+}
+
+/* ── Context Translation ── */
+.ctx-card {
+  background: var(--bg2); border: 1px solid var(--border); border-radius: 10px;
+  padding: 14px; margin-bottom: 10px;
+}
+.ctx-card.answered { opacity: .7; }
+.ctx-num { font-size: .66rem; color: var(--dim); margin-bottom: 4px; }
+.ctx-sentence { font-size: .9rem; margin-bottom: 10px; line-height: 1.6; }
+.ctx-blank { color: var(--primary); font-weight: 700; }
+.ctx-q { font-size: .78rem; color: var(--muted); margin-bottom: 8px; }
+.ctx-opts { display: grid; grid-template-columns: 1fr 1fr; gap: 6px; }
+.ctx-opt {
+  padding: 8px; border-radius: 6px; font-size: .78rem;
+  border: 1px solid var(--border); background: var(--card); color: var(--text);
+  cursor: pointer; text-align: center; transition: all .2s;
+}
+.ctx-opt:hover { border-color: var(--border2); }
+.ctx-opt.correct { background: rgba(74,222,128,.15); border-color: var(--green); color: var(--green); }
+.ctx-opt.wrong { background: rgba(251,113,133,.1); border-color: var(--rose); color: var(--rose); }
+.ctx-opt:disabled { cursor: default; }
+.ctx-feedback { font-size: .76rem; margin-top: 6px; }
+
+/* ── Sentence Builder hint row ── */
+.sb-hint-row { display: flex; align-items: center; gap: 8px; margin-bottom: 8px; }
+.sb-hint-toggle { font-size: .7rem; flex-shrink: 0; }
+.sb-hint { font-size: .78rem; color: var(--muted); font-style: italic; animation: fadeInUp .2s; }
+
+/* ── Fill Story ── */
+.fill-story-text {
+  font-size: .92rem; line-height: 2.1; color: #5a3e1b;
+  background: linear-gradient(135deg, #fef9eb 0%, #fdf2d5 100%);
+  border: 2px solid #f6d365; border-radius: var(--radius);
+  padding: 20px 24px;
+}
+.fill-blank-wrap { display: inline; }
+.fill-input {
+  width: 140px; padding: 4px 8px; border-radius: 6px; font-size: .84rem;
+  border: 2px solid #d4a843; background: #fffef5; color: #1a1a2e;
+  font-family: var(--font); text-align: center; transition: all .2s; font-weight: 600;
+}
+.fill-input::placeholder { color: #c4a265; font-weight: 400; }
+.fill-input:focus { border-color: #2563eb; outline: none; box-shadow: 0 0 0 3px rgba(37,99,235,.2); background: #fff; }
+.fill-input.fill-correct { background: #dcfce7; border-color: #16a34a; color: #15803d; }
+.fill-input.fill-wrong { background: #fee2e2; border-color: #dc2626; color: #b91c1c; animation: shake .3s; }
+.fill-input.fill-shown { background: #fef3c7; border-color: #d97706; color: #92400e; font-style: italic; }
+.fill-hint { font-size: .68rem; color: #b8860b; margin-left: 2px; font-style: italic; }
+
+/* ── Animations ── */
+@keyframes correctPulse { 0%,100%{transform:scale(1)} 50%{transform:scale(1.04)} }
+@keyframes shake { 0%,100%{transform:translateX(0)} 20%{transform:translateX(-4px)} 40%{transform:translateX(4px)} 60%{transform:translateX(-3px)} 80%{transform:translateX(3px)} }
+@keyframes fadeInUp { from{opacity:0;transform:translateY(8px)} to{opacity:1;transform:translateY(0)} }
 </style>
 </head>
 <body>
 
 <header>
   <div class="flag"><span class="f1"></span><span class="f2"></span><span class="f3"></span></div>
-  <h1>🌤 DeutschWeg — Промты</h1>
-  <p class="sub">Серия образовательных промтов для работы с текстами <strong>Lingua.com</strong>.<br>
-  Совместимо с <strong>ChatGPT · Claude · Gemini · Grok</strong> и любым AI-чатом.</p>
+  <h1>LinguaWeg — Промты</h1>
+  <p class="sub">Образовательные AI-промты для текстов <strong>Lingua.com</strong>.<br>
+  7 типов проработки каждого текста: от перевода до рефлексии по Лефевру.<br>
+  Совместимо с <strong>ChatGPT · Claude · Gemini · Grok</strong>.</p>
   <div class="badges">
-    <span class="badge bsky">📖 Перевод по предложениям</span>
-    <span class="badge bgold">❓ Викторина + WAIT-режим</span>
-    <span class="badge bgreen">🎓 Урок DeutschWeg</span>
-    <span class="badge bcloud">🔑 КЛЮЧ + артикли</span>
+    <span class="badge b1">📖 Оригинальный текст</span>
+    <span class="badge b1">📝 Перевод + грамматика</span>
+    <span class="badge b2">📚 Словарь + упражнения</span>
+    <span class="badge b3">🎭 Диалог-тренажёр</span>
+    <span class="badge b4">🏛 Разбор по Сократу</span>
+    <span class="badge b5">🔄 Синонимизация</span>
+    <span class="badge b4">🪞 Пересказ по Лефевру</span>
   </div>
 </header>
 
 <div class="wrap">
-  <div class="stats-g">
-    <div class="scard"><div class="sico">📚</div><div><div class="slabel">Текстов</div><div class="sval">9 текстов Lingua.com</div></div></div>
-    <div class="scard"><div class="sico">🤖</div><div><div class="slabel">Промтов</div><div class="sval">3 типа × 9 = 27</div></div></div>
-    <div class="scard"><div class="sico">🌐</div><div><div class="slabel">Совместимость</div><div class="sval">ChatGPT · Claude · Gemini</div></div></div>
-    <div class="scard"><div class="sico">📊</div><div><div class="slabel">Уровни</div><div class="sval">A1 → B1</div></div></div>
+  <div class="stats" id="stats"></div>
+
+  <!-- LIST VIEW -->
+  <div id="list">
+    <div id="lesson-grid"></div>
   </div>
 
-  <div class="stitle">Как использовать</div>
-  <div class="steps">
-    <div class="step"><div class="sn">1</div><p>Выбери текст по теме или уровню</p></div>
-    <div class="step"><div class="sn">2</div><p>Выбери тип промта</p></div>
-    <div class="step"><div class="sn">3</div><p>Нажми «Скопировать» → вставь в AI</p></div>
-    <div class="step"><div class="sn">4</div><p>AI входит в роль и ведёт урок сам</p></div>
-  </div>
-
-  <div class="stitle">Типы промтов</div>
-  <div class="legend-g">
-    <div class="li"><div class="lico lb">📖</div><div><div class="lname">Тип 1 — Перевод</div><div class="ldesc">По предложению. Только «Genau!» или ❌/✓. Без лишних слов.</div></div></div>
-    <div class="li"><div class="lico lg">❓</div><div><div class="lname">Тип 2 — Викторина</div><div class="ldesc">WAIT-режим, команды (подсказка/пропустить/стоп), КЛЮЧ с артиклями — из Drive-промтов.</div></div></div>
-    <div class="li"><div class="lico ll">🎓</div><div><div class="lname">Тип 3 — Урок DeutschWeg</div><div class="ldesc">7 шагов: слова → чтение → грамматика → разговор → итог.</div></div></div>
+  <!-- DETAIL VIEW -->
+  <div id="detail">
+    <div class="stitle"><button class="back-btn" onclick="goHome()">← Все уроки</button></div>
+    <div class="detail-head" id="detail-head"></div>
+    <div class="tabs" id="tabs"></div>
+    <div id="tab-panels"></div>
+    <div class="lesson-nav" id="lesson-nav"></div>
   </div>
 </div>
 
-<div class="wrap"><div class="horizon"></div></div>
-
-<div class="wrap" id="container" style="padding-bottom:60px"></div>
-
 <footer>
-  Промты для <a href="https://alex16111977.github.io/deutschweg/" target="_blank">DeutschWeg</a>
+  Промты для <a href="https://alex16111977.github.io/lingua/" target="_blank">LinguaWeg</a>
   &nbsp;·&nbsp; Тексты: <a href="https://lingua.com/de/deutsch/lesen/" target="_blank">Lingua.com</a>
+  &nbsp;·&nbsp; Методы: Сократ · Лефевр
   &nbsp;·&nbsp; 2024–2026
 </footer>
 
+<!-- ═══════════ LESSON DATA ═══════════ -->
+<script>var LESSONS = [];</script>
+<script src="lessons/lesson-01.js"></script>
+<script src="lessons/lesson-02.js"></script>
+<script src="lessons/lesson-03.js"></script>
+<script src="lessons/lesson-04.js"></script>
+<script src="lessons/lesson-05.js"></script>
+<script src="lessons/lesson-06.js"></script>
+<script src="lessons/lesson-07.js"></script>
+<script src="lessons/lesson-08.js"></script>
+<script src="lessons/lesson-09.js"></script>
+<script src="lessons/lesson-10.js"></script>
+<script src="lessons/lesson-11.js"></script>
+<script src="lessons/lesson-12.js"></script>
+<script src="lessons/lesson-13.js"></script>
+<script src="lessons/lesson-14.js"></script>
+<script src="lessons/lesson-15.js"></script>
+<script src="lessons/lesson-16.js"></script>
+<script src="lessons/lesson-17.js"></script>
+<script src="lessons/lesson-18.js"></script>
+<script src="lessons/lesson-19.js"></script>
+<script src="lessons/lesson-20.js"></script>
+<script src="lessons/lesson-21.js"></script>
+
+<!-- ═══════════ APP LOGIC ═══════════ -->
 <script>
-const T = [
-  { num:"01", title:"Am Flughafen",        slug:"flughafen", level:"A1–A2", topic:"Путешествия / Аэропорт",
-    vocab:[["der Flughafen","аэропорт","Der Flughafen ist sehr groß."],["das Gepäck","багаж","Familie Müller hat viel Gepäck."],["die Bordkarte","посадочный талон","Sie erhält ihre Bordkarte."],["der Flugsteig","выход на посадку","Sie erreichen den Flugsteig."],["die Sicherheitskontrolle","контроль безопасности","Sie gehen durch die Sicherheitskontrolle."],["das Gepäckband","лента выдачи","Am Gepäckband warten alle."],["einchecken","регистрироваться","Die Familie checkt ein."],["landen","приземлиться","Das Flugzeug landet."],["der Wartebereich","зал ожидания","Sie sitzen im Wartebereich."],["das Handgepäck","ручная кладь","Die Taschen sind Handgepäck."]],
-    grammar:["Reflexivverben: sich fühlen, sich beraten lassen","Passiv: wird aufgerufen, wird erklärt","Akkusativ nach 'durch': durch die Sicherheitskontrolle"],
-    questions:[["Wo lässt sich Familie Müller beraten?","im Reisebüro"],["Wohin fliegt die Familie?","nach Mallorca"],["Wieviel Gepäck hat die Familie?","drei Koffer und zwei Taschen"],["Wie fühlt sich Herr Müller?","nicht wohl, ihm wird übel"],["Wo holen sie das Gepäck ab?","am Gepäckband"]],
-    text:`Familie Müller plant ihren Urlaub. Sie geht in ein Reisebüro und lässt sich von einem Angestellten beraten. Als Reiseziel wählt sie Mallorca aus. Familie Müller bucht einen Flug auf die Mittelmeerinsel. Sie bucht außerdem zwei Zimmer in einem großen Hotel direkt am Strand. Familie Müller badet gerne im Meer.\n\nAm Abflugtag fahren Herr und Frau Müller mit ihren beiden Kindern im Taxi zum Flughafen. Dort warten schon viele Urlauber. Alle wollen nach Mallorca fliegen. Familie Müller hat viel Gepäck dabei: drei große Koffer und zwei Taschen. Die Taschen sind Handgepäck. Familie Müller nimmt sie mit in das Flugzeug. Am Flugschalter checkt die Familie ein und erhält ihre Bordkarten. Die Angestellte am Flugschalter erklärt Herrn Müller den Weg zum Flugsteig. Es ist nicht mehr viel Zeit bis zum Abflug. Familie Müller geht durch die Sicherheitskontrolle. Als alle das richtige Gate erreichen, setzen sie sich in den Wartebereich. Kurz darauf wird ihre Flugnummer aufgerufen und Familie Müller steigt mit vielen anderen Passagieren in das Flugzeug nach Mallorca. Beim Starten fühlt sich Herr Müller nicht wohl. Ihm wird ein wenig übel. Nach zwei Stunden landet das Flugzeug. Am Gepäckband warten alle Passagiere noch auf ihr fehlendes Gepäck. Danach kann endlich der Urlaub beginnen.` },
-  { num:"02", title:"Berufe",              slug:"berufe",     level:"A1–A2", topic:"Профессии / Работа",
-    vocab:[["der Beruf","профессия","Was ist dein Beruf?"],["der Arzt","врач","Der Arzt arbeitet im Krankenhaus."],["die Lehrerin","учительница","Die Lehrerin erklärt die Aufgabe."],["der Ingenieur","инженер","Er ist Ingenieur."],["arbeiten","работать","Sie arbeitet im Büro."],["verdienen","зарабатывать","Er verdient gut."],["die Ausbildung","обучение","Die Ausbildung dauert drei Jahre."],["der Betrieb","предприятие","Sie arbeitet in einem großen Betrieb."],["die Stelle","должность / место","Er sucht eine neue Stelle."],["der Kollege","коллега","Mein Kollege ist sehr nett."]],
-    grammar:["Berufe ohne Artikel: Ich bin Arzt / Sie ist Lehrerin","Modalverben: müssen, können, dürfen","Lokale Präpositionen + Dativ: in einer Klinik"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/berufe/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/berufe/]" },
-  { num:"03", title:"Der Weg zur Post",    slug:"post",       level:"A1–A2", topic:"Ориентирование / Город",
-    vocab:[["die Post","почта","Wo ist die Post?"],["geradeaus","прямо","Gehen Sie geradeaus."],["links","налево","Biegen Sie links ab."],["rechts","направо","Es ist rechts."],["die Kreuzung","перекрёсток","An der Kreuzung links."],["die Ampel","светофор","Bei der Ampel rechts."],["abbiegen","поворачивать","Biege an der Ecke ab."],["entlang","вдоль","Geh die Straße entlang."],["gegenüber","напротив","Die Post ist gegenüber."],["die Ecke","угол","An der Ecke abbiegen."]],
-    grammar:["Imperativ: Geh geradeaus! / Biegen Sie rechts ab!","Lokale Präpositionen + Dativ: an der Kreuzung, bei der Ampel","Trennbare Verben: abbiegen → biegt ab"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/post/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/post/]" },
-  { num:"04", title:"Die Farben",          slug:"farben",     level:"A1",    topic:"Цвета / Описания",
-    vocab:[["rot","красный","Das Auto ist rot."],["blau","синий","Der Himmel ist blau."],["grün","зелёный","Das Gras ist grün."],["gelb","жёлтый","Die Sonne ist gelb."],["schwarz","чёрный","Die Katze ist schwarz."],["weiß","белый","Der Schnee ist weiß."],["bunt","разноцветный","Der Regenbogen ist bunt."],["hell","светлый","Hellblau ist schön."],["dunkel","тёмный","Dunkelblau ist elegant."],["lila","фиолетовый","Die Blume ist lila."]],
-    grammar:["Adjektivdeklination Typ 2: ein roter Ball, eine blaue Tasche","Adjektiv ohne Artikel Typ 3: roter Wein, weißes Papier","Prädikativum: Das Auto ist blau (без окончания)"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/farben/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/farben/]" },
-  { num:"05", title:"Ein Tag in Berlin",   slug:"berlin",     level:"A2",    topic:"Город / Достопримечательности",
-    vocab:[["die Hauptstadt","столица","Berlin ist die Hauptstadt."],["das Denkmal","памятник","Das Brandenburger Tor ist ein Denkmal."],["besichtigen","осматривать","Wir besichtigen das Museum."],["die Ausstellung","выставка","Die Ausstellung ist interessant."],["der Spaziergang","прогулка","Wir machen einen Spaziergang."],["bekannt","известный","Berlin ist bekannt."],["das Wahrzeichen","символ города","Das ist das Wahrzeichen."],["einkaufen","делать покупки","Wir kaufen ein."],["die Sehenswürdigkeit","достопримечательность","Das ist eine Sehenswürdigkeit."],["entdecken","открывать","Wir entdecken die Stadt."]],
-    grammar:["Perfekt mit haben/sein: besichtigt / spazieren gegangen","Trennbare Verben im Perfekt: eingekauft, aufgemacht","Temporale Präpositionen: am Morgen, um 10 Uhr, nach dem Essen"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/berlin/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/berlin/]" },
-  { num:"06", title:"Einkauf im Supermarkt", slug:"supermarkt", level:"A1–A2", topic:"Покупки / Продукты",
-    vocab:[["der Supermarkt","супермаркет","Im Supermarkt gibt es alles."],["einkaufen","делать покупки","Ich gehe einkaufen."],["die Kasse","касса","An der Kasse zahlt man."],["die Einkaufsliste","список покупок","Ich habe eine Liste."],["das Angebot","акция","Milch ist heute im Angebot."],["kosten","стоить","Was kostet das?"],["das Gemüse","овощи","Frisches Gemüse ist gesund."],["die Milch","молоко","Eine Flasche Milch bitte."],["der Einkaufskorb","корзина","Ich nehme einen Korb."],["bezahlen","платить","Ich bezahle an der Kasse."]],
-    grammar:["Akkusativ: einen Apfel / eine Flasche / ein Brot kaufen","Mengenangaben: ein Kilo, eine Flasche, ein Paket + Genitiv","Possessivartikel Akkusativ: meinen Korb, meine Liste"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/supermarkt/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/supermarkt/]" },
-  { num:"07", title:"Feste und Feiertage", slug:"feiertage",  level:"A2–B1", topic:"Праздники / Традиции",
-    vocab:[["das Fest","праздник","Das Oktoberfest ist ein Fest."],["der Feiertag","выходной / праздник","Weihnachten ist ein Feiertag."],["feiern","праздновать","Wir feiern zusammen."],["der Karneval","карнавал","Der Karneval in Köln ist bekannt."],["traditionell","традиционный","Das ist ein traditionelles Fest."],["der Brauch","обычай","Das ist ein alter Brauch."],["das Geschenk","подарок","Wir kaufen Geschenke."],["die Dekoration","украшение","Die Dekoration ist schön."],["der Advent","Адвент","Der Advent beginnt im November."],["schmücken","украшать","Wir schmücken den Baum."]],
-    grammar:["Konjunktiv II: Man könnte feiern / Das wäre schön","Kausale Konjunktionen: weil, da, denn","Passiv: Weihnachten wird gefeiert / Geschenke werden gegeben"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/feiertage/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/feiertage/]" },
-  { num:"08", title:"Gesundheit — Beim Arzt", slug:"arzt",    level:"A2–B1", topic:"Здоровье / У врача",
-    vocab:[["der Arzt","врач","Der Arzt untersucht mich."],["die Praxis","кабинет врача","Ich gehe in die Praxis."],["der Termin","приём / запись","Ich habe einen Termin."],["das Rezept","рецепт","Der Arzt schreibt ein Rezept."],["sich krank fühlen","чувствовать себя больным","Ich fühle mich krank."],["Schmerzen haben","болеть","Ich habe Kopfschmerzen."],["untersuchen","осматривать","Er untersucht mich."],["sich erholen","восстанавливаться","Du musst dich erholen."],["die Erkältung","простуда","Ich habe eine Erkältung."],["das Fieber","температура","Ich habe Fieber."]],
-    grammar:["Reflexivverben: sich fühlen, sich erholen, sich erkälten","Modalverben im Rat: müssen, dürfen, sollen","Dativ bei Körperteilen: Mir tut der Kopf weh"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/arzt/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/arzt/]" },
-  { num:"09", title:"Mein Tag",            slug:"mein-tag",   level:"A1–A2", topic:"Распорядок дня / Рутина",
-    vocab:[["aufstehen","вставать","Ich stehe um 7 Uhr auf."],["frühstücken","завтракать","Ich frühstücke um halb acht."],["die Arbeit","работа","Er geht zur Arbeit."],["sich ausruhen","отдыхать","Ich ruhe mich aus."],["zu Bett gehen","ложиться спать","Um 22 Uhr gehe ich zu Bett."],["der Wecker","будильник","Der Wecker klingelt."],["die Pause","перерыв","Ich mache Pause."],["der Alltag","повседневность","Mein Alltag ist ähnlich."],["kochen","готовить","Ich koche Abendessen."],["einschlafen","засыпать","Ich schlafe um 23 Uhr ein."]],
-    grammar:["Trennbare Verben: aufstehen, einschlafen, anfangen","Temporale Angaben: um 7 Uhr, morgens, abends","Konjunktiv II für Wünsche: Ich würde gern früher aufstehen"],
-    questions:[["Загрузи вопросы с сайта","lingua.com/de/deutsch/lesen/mein-tag/"]],
-    text:"[Скопируй текст с:\nhttps://lingua.com/de/deutsch/lesen/mein-tag/]" }
+// ─── PROMPT TYPES CONFIG ───
+const PROMPT_TYPES = [
+  { id:'original',   icon:'📖', title:'Оригинал' },
+  { id:'exercises',  icon:'🏋', title:'Упражнения' },
+  { id:'grammar',    icon:'📝', title:'Перевод' },
+  { id:'vocabulary', icon:'📚', title:'Словарь' },
+  { id:'dialogue',   icon:'🎭', title:'Диалог' },
+  { id:'socratic',   icon:'🏛', title:'Сократ' },
+  { id:'synonyms',   icon:'🔄', title:'Синонимы' },
+  { id:'lefebvre',   icon:'🪞', title:'Лефевр' },
 ];
 
-function makeTranslate(t){
-  const ref = t.vocab.map(v=>`• ${v[0]} — ${v[1]}`).join('\n');
-  return `Ты — преподаватель немецкого языка. Проведи урок чтения текста.
-
-━━━━━━━━━━━━━━━━━━━━━━━
-ТЕКСТ: "${t.title}" (${t.level}) · Тема: ${t.topic}
-Источник: https://lingua.com/de/deutsch/lesen/${t.slug}/
-━━━━━━━━━━━━━━━━━━━━━━━
-
-${t.text}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-СПРАВОЧНИК (только если ученик спросит):
-━━━━━━━━━━━━━━━━━━━━━━━
-${ref}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-КАК ПРОХОДИТ УРОК:
-━━━━━━━━━━━━━━━━━━━━━━━
-1. Ученик читает по ОДНОМУ предложению и переводит его.
-2. Перевод ПРАВИЛЬНЫЙ → только «Genau!» Ждёшь следующее.
-3. Есть ОШИБКА → коротко: что не так + правильный вариант.
-4. Ученик поправил себя сам → не трогай, всё ок.
-5. Ученик просит помощь → объясни коротко и по делу.
-
-━━━━━━━━━━━━━━━━━━━━━━━
-СТРОГИЕ ПРАВИЛА:
-━━━━━━━━━━━━━━━━━━━━━━━
-• НЕ ПЕРЕБИВАЙ — жди, пока ученик закончит.
-• НЕ РАЗЖЁВЫВАЙ — только конкретика.
-• НЕ ЧИТАЙ следующее предложение сам.
-• НЕ ХВАЛИ длинно — только «Genau!» или «Richtig!»
-• Объяснения — на русском языке.
-
-ФОРМАТ ИСПРАВЛЕНИЯ:
-❌ [что сказал ученик]
-✓ [как правильно]
-[одна фраза — только если реально нужно]
-
-⏸ WAIT-РЕЖИМ: если ответ не похож на немецкую фразу /
-кириллица / шум / пусто → скажи:
-«Не слышу ответа. Скажи по-немецки или "пропустить".»
-
-💡 КОМАНДЫ: подсказка / пропустить / стоп
-
-СТАРТ: одна фраза — тема и что делать. Ученик начинает сам.`;
+// ─── PLACEHOLDER REPLACEMENT ───
+function fillPrompt(lesson, promptText) {
+  if (!promptText) return '';
+  const vocList = lesson.vocabulary.map(v => '• ' + v.de + ' — ' + v.ru).join('\n');
+  return promptText
+    .split('{lessonText}').join(lesson.text)
+    .split('{level}').join(lesson.level)
+    .split('{title}').join(lesson.title)
+    .split('{vocabularyList}').join(vocList)
+    .split('{grammarFocus}').join(
+      Array.isArray(lesson.grammarFocus)
+        ? lesson.grammarFocus.join(', ')
+        : (lesson.grammarFocus || '')
+    );
 }
 
-function makeQuiz(t){
-  const key = t.vocab.map((v,i)=>
-    `${i+1}. ${v[1]} → ${v[0]}\n   Пример: ${v[2]}\n   С паузами: ${v[2].split(' ').join('... ')}`
-  ).join('\n\n');
-  const qBlock = t.slug==='flughafen'
-    ? t.questions.map((q,i)=>`${i+1}. ${q[0]}\n   → Правильный ответ: ${q[1]}`).join('\n')
-    : `[Вставь 5 вопросов с сайта:\nhttps://lingua.com/de/deutsch/lesen/${t.slug}/]`;
-
-  return `РОЛЬ / СТИЛЬ
-Ты — преподаватель немецкого языка (${t.level}).
-Тема: "${t.title}" — ${t.topic}.
-Говоришь только по-русски.
-Реплики короткие, без смолтока и лишних вводных фраз.
-Немецкие предложения произносишь с «…» между словами.
-
-━━━━━━━━━━━━━━━━━━━━━━━
-СТРУКТУРА — 4 РАУНДА:
-━━━━━━━━━━━━━━━━━━━━━━━
-
-РАУНД 1 — СЛОВАРЬ 🔤
-Задаёшь слова из КЛЮЧА по одному. Формат:
-  «Слово: <русское>. Переведи на немецкий. Жду ответа.»
-  → Правильно: «Проверка: правильно.» + произнеси пример с «…»
-  → Нет: «Проверка: нет. Правильно: <слово>. (кратко почему)» + пример с «…»
-Сразу следующее слово. Без «Молодец», «Следующее», «Теперь так».
-
-РАУНД 2 — ПОНИМАНИЕ ТЕКСТА ❓
-Задаёшь вопросы по тексту по одному. Формат:
-  «Вопрос: <по-немецки>. Ответь полным предложением.»
-  → Правильно: «Richtig!»
-  → Нет: «Нет. Правильно: <ответ>.» + укажи, где в тексте.
-
-РАУНД 3 — ГРАММАТИКА 📐
-Возьми 3 предложения из текста. Убери слово с окончанием.
-Попроси восстановить форму. Тема: ${t.grammar[0]}
-  → Правильно: «Genau!»
-  → Нет: «Нет. Правильная форма: <форма>. (1 объяснение почему)»
-
-РАУНД 4 — ПЕРЕСКАЗ 💬
-Попроси пересказать главное из текста в 3–4 предложениях
-по-немецки. Исправляй: ❌ [ответ] → ✓ [правильно] + 1 фраза.
-
-━━━━━━━━━━━━━━━━━━━━━━━
-⏸ WAIT-РЕЖИМ:
-━━━━━━━━━━━━━━━━━━━━━━━
-Если ответа нет / кириллица / шум / пусто:
-  «Не слышу ответа. Назови по-немецки или скажи "пропустить".»
-  Затем: «Жду ответа.»
-
-━━━━━━━━━━━━━━━━━━━━━━━
-💡 КОМАНДЫ:
-━━━━━━━━━━━━━━━━━━━━━━━
-• подсказка → первая буква нужного слова
-• пропустить → правильный вариант + 1 причина + пример с «…» → дальше
-• стоп → завершить без итогов
-• «хватит / спасибо / на этом всё» → трактовать как «стоп»
-• повторить → вернись к двум последним ошибочным
-
-━━━━━━━━━━━━━━━━━━━━━━━
-✅ ПРАВИЛА ПРОВЕРКИ (внутренние — не озвучивать):
-━━━━━━━━━━━━━━━━━━━━━━━
-— Принимать только латиницу (ä ö ü ß, пробел, дефис).
-— Нормализовать: lower case, trim, ä→ae, ö→oe, ü→ue, ß→ss.
-— СУЩЕСТВИТЕЛЬНЫЕ: ответ ОБЯЗАН начинаться с артикля
-  der / die / das. Без артикля или с неверным → «нет».
-— НЕ СУЩЕСТВИТЕЛЬНЫЕ (глаголы, прил.): артикль не нужен.
-— Эквиваленты: in das ≡ ins, zu dem ≡ zum, an dem ≡ am.
-— Принимать только при полном совпадении с КЛЮЧОМ
-  (после нормализации).
-
-━━━━━━━━━━━━━━━━━━━━━━━
-📚 КЛЮЧ — СЛОВА (Раунд 1):
-━━━━━━━━━━━━━━━━━━━━━━━
-${key}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-📝 ВОПРОСЫ К ТЕКСТУ (Раунд 2):
-━━━━━━━━━━━━━━━━━━━━━━━
-${qBlock}
-
-В КОНЦЕ: краткий итог — сколько правильных ответов в каждом раунде.
-
-СТАРТ: объяви тему и Раунд 1. Задай первое слово.`;
+// ─── RENDER STATS ───
+function renderStats() {
+  var std = LESSONS.filter(function(l){ return l.section !== 'premium'; }).length;
+  var prm = LESSONS.filter(function(l){ return l.section === 'premium'; }).length;
+  var n = LESSONS.length;
+  document.getElementById('stats').innerHTML =
+    '<div class="scard"><div class="sico">📚</div><div><div class="slbl">Текстов</div><div class="sval">' + std + ' Стандарт + ' + prm + ' Премиум</div></div></div>' +
+    '<div class="scard"><div class="sico">🤖</div><div><div class="slbl">Промтов</div><div class="sval">8 табов × ' + n + ' = ' + (n*8) + '</div></div></div>' +
+    '<div class="scard"><div class="sico">🌐</div><div><div class="slbl">Совместимость</div><div class="sval">ChatGPT · Claude · Gemini</div></div></div>' +
+    '<div class="scard"><div class="sico">📊</div><div><div class="slbl">Уровни</div><div class="sval">A2 → B1</div></div></div>';
 }
 
-function makeLesson(t){
-  const voc = t.vocab.map(v=>`• ${v[0]} — ${v[1]}\n  Пример: ${v[2]}`).join('\n');
-  const gr = t.grammar.map((g,i)=>`${i+1}. ${g}`).join('\n');
-  return `Ты — преподаватель немецкого языка. Проведи полный урок в стиле DeutschWeg.
+// ─── RENDER LESSON GRID ───
+function renderGrid() {
+  var standard = LESSONS.filter(function(l){ return l.section !== 'premium'; });
+  var premium = LESSONS.filter(function(l){ return l.section === 'premium'; });
 
-━━━━━━━━━━━━━━━━━━━━━━━
-МАТЕРИАЛ УРОКА:
-━━━━━━━━━━━━━━━━━━━━━━━
-Название: "${t.title}" · Уровень: ${t.level} · Тема: ${t.topic}
-Источник: https://lingua.com/de/deutsch/lesen/${t.slug}/
+  var html = '';
 
-ТЕКСТ:
-${t.text}
+  // Standard section
+  if (standard.length) {
+    html += '<div class="stitle">Стандарт A2 (' + standard.length + ' текстов)</div>';
+    html += '<div class="grid">';
+    standard.forEach(function(l) {
+      html += renderLessonCard(l, false);
+    });
+    html += '</div>';
+  }
 
-━━━━━━━━━━━━━━━━━━━━━━━
-СЛОВАРЬ (10 слов):
-━━━━━━━━━━━━━━━━━━━━━━━
-${voc}
+  // Premium section
+  if (premium.length) {
+    html += '<div class="stitle" style="margin-top:30px">⭐ Премиум A2 (' + premium.length + ' текстов)</div>';
+    html += '<div class="grid">';
+    premium.forEach(function(l) {
+      html += renderLessonCard(l, true);
+    });
+    html += '</div>';
+  }
 
-━━━━━━━━━━━━━━━━━━━━━━━
-ГРАММАТИКА УРОКА:
-━━━━━━━━━━━━━━━━━━━━━━━
-${gr}
-
-━━━━━━━━━━━━━━━━━━━━━━━
-СТРУКТУРА — 7 ШАГОВ:
-━━━━━━━━━━━━━━━━━━━━━━━
-
-ШАГ 1 — НОВЫЕ СЛОВА 🔤
-Представь каждое слово: артикль + слово | перевод | пример.
-Спроси: «Какие слова уже знакомы?» Жди ответа.
-
-ШАГ 2 — ЧТЕНИЕ ПО АБЗАЦАМ 📖
-Давай текст по одному абзацу. После каждого — 1–2 вопроса.
-Жди ответа. «Genau!» / или коротко поясни.
-
-ШАГ 3 — ВОПРОСЫ К ТЕКСТУ ❓
-Вопросы с сайта по одному.
-❌ [ответ] → ✓ [правильно] + 1 фраза объяснения.
-
-ШАГ 4 — ГРАММАТИКА 📐
-Тема: ${t.grammar[0]}
-→ Объяснение на русском.
-→ 3 примера из текста.
-→ 3 упражнения. Жди ответа на каждое.
-
-ШАГ 5 — ЛЕКСИКА 🧠
-Упр. А: «Найди в тексте слово, которое означает...» (3 задания)
-Упр. Б: Заполни пропуски (3 предложения)
-
-ШАГ 6 — РАЗГОВОР 💬
-3–4 личных вопроса по теме «${t.topic}».
-Деликатно исправляй ответы ученика.
-
-ШАГ 7 — ИТОГ ✅
-Что изучили + ключевые слова + грамматика.
-Домашнее задание: 5–6 предложений по теме.
-
-━━━━━━━━━━━━━━━━━━━━━━━
-ПРАВИЛА:
-━━━━━━━━━━━━━━━━━━━━━━━
-• Объяснения — на русском.
-• Задания и примеры — только на немецком.
-• Один шаг за раз. Не переходи без ответа ученика.
-• Существительные — всегда с артиклем!
-• «Genau!» / «Richtig!» — кратко, без лишней похвалы.
-
-⏸ WAIT-РЕЖИМ: если ответ непонятен →
-  «Не слышу ответа. Повтори или скажи "пропустить".»
-💡 КОМАНДЫ: подсказка / пропустить / стоп
-
-СТАРТ: поприветствуй, назови тему, задай вводный вопрос
-по теме «${t.topic}». Потом — Шаг 1.`;
+  document.getElementById('lesson-grid').innerHTML = html;
 }
 
-function esc(s){return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
+function renderLessonCard(l, isPremium) {
+  var cls = isPremium ? ' lcard-premium' : '';
+  return '<a class="lcard' + cls + '" href="#' + l.id + '">' +
+    '<div class="lcard-head">' +
+      '<div class="lnum">' + String(l.number).padStart(2,'0') + '</div>' +
+      '<div><div class="ltitle">' + esc(l.title) + '</div>' +
+      '<div class="lmeta">Lingua.com · ' + l.level +
+        (isPremium ? ' · <span style="color:var(--gold)">⭐ Premium</span>' : '') +
+      '</div></div>' +
+    '</div>' +
+    '<div class="ltags">' +
+      l.topics.map(function(t){ return '<span class="ltag">' + t + '</span>'; }).join('') +
+    '</div>' +
+  '</a>';
+}
 
-function tog(id){document.getElementById(id).classList.toggle('open')}
+// ─── RENDER LESSON DETAIL ───
+function renderDetail(lesson, activeTab) {
+  activeTab = activeTab || PROMPT_TYPES[0].id;
 
-function cp(e,id){
-  e.stopPropagation();
-  navigator.clipboard.writeText(document.getElementById(id).textContent).then(()=>{
-    const b=e.currentTarget;b.textContent='✅ Скопировано!';b.classList.add('ok');
-    setTimeout(()=>{b.textContent='📋 Скопировать';b.classList.remove('ok')},2000);
+  // Header
+  document.getElementById('detail-head').innerHTML =
+    '<div class="detail-num">' + String(lesson.number).padStart(2,'0') + '</div>' +
+    '<div><div class="detail-title">' + esc(lesson.title) + '</div>' +
+    '<div class="detail-meta">Lingua.com · ' + lesson.level + ' · ' +
+    (lesson.topics||[]).join(', ') + '</div></div>' +
+    (lesson.url ? '<a class="detail-link" href="' + lesson.url + '" target="_blank">🔗 Lingua.com</a>' : '');
+
+  // Tabs
+  var tabsHtml = '';
+  PROMPT_TYPES.forEach(function(pt) {
+    var cls = pt.id === activeTab ? ' active' : '';
+    tabsHtml += '<button class="tab-btn' + cls + '" data-tab="' + pt.id + '" onclick="switchTab(\'' + lesson.id + '\',\'' + pt.id + '\')">' +
+      '<span class="tab-ico">' + pt.icon + '</span> ' + pt.title + '</button>';
+  });
+  document.getElementById('tabs').innerHTML = tabsHtml;
+
+  // Panels
+  var panelsHtml = '';
+  PROMPT_TYPES.forEach(function(pt) {
+    var cls = pt.id === activeTab ? ' active' : '';
+    var prompt = lesson.prompts[pt.id];
+    if (!prompt) {
+      panelsHtml += '<div class="tab-panel' + cls + '" data-panel="' + pt.id + '"><div class="prompt-card"><div class="prompt-instr">Промт для этого типа пока не создан.</div></div></div>';
+      return;
+    }
+
+    panelsHtml += '<div class="tab-panel' + cls + '" data-panel="' + pt.id + '">';
+
+    if (pt.id === 'original') {
+      panelsHtml += renderTextView(lesson);
+    } else if (pt.id === 'exercises') {
+      panelsHtml += renderExercisesView(lesson);
+    } else {
+      var filled = fillPrompt(lesson, prompt.promptText);
+      var pid = 'prompt-' + lesson.id + '-' + pt.id;
+      panelsHtml += '<div class="prompt-card">' +
+        '<div class="prompt-instr">' + esc(prompt.instruction || '') + '</div>' +
+        '<div class="prompt-actions">' +
+          '<button class="copy-btn" onclick="copyText(this,\'' + pid + '\')">📋 Скопировать промт</button>' +
+        '</div>' +
+        '<div class="prompt-body" id="' + pid + '">' + esc(filled) + '</div>' +
+      '</div>';
+    }
+
+    panelsHtml += '</div>';
+  });
+  document.getElementById('tab-panels').innerHTML = panelsHtml;
+
+  // Nav prev/next
+  var idx = LESSONS.indexOf(lesson);
+  var prev = idx > 0 ? LESSONS[idx-1] : null;
+  var next = idx < LESSONS.length-1 ? LESSONS[idx+1] : null;
+  document.getElementById('lesson-nav').innerHTML =
+    (prev ? '<a class="nav-btn" href="#' + prev.id + '">← ' + prev.title + '</a>' : '<span></span>') +
+    (next ? '<a class="nav-btn" href="#' + next.id + '">' + next.title + ' →</a>' : '<span></span>');
+}
+
+// ─── RENDER TEXT VIEW (type 1: original) ───
+function renderTextView(lesson) {
+  var paragraphs = lesson.text.split('\n\n');
+  var textHtml = '<div class="text-view">';
+  paragraphs.forEach(function(p) {
+    textHtml += '<p>' + esc(p) + '</p>';
+  });
+  textHtml += '</div>';
+
+  // Vocabulary grid
+  textHtml += '<div class="stitle">Словарь (' + lesson.vocabulary.length + ' слов)</div>';
+  textHtml += '<div class="vocab-grid">';
+  lesson.vocabulary.forEach(function(v) {
+    var gcls = '';
+    if (v.gender === 'maskulin') gcls = ' masc';
+    else if (v.gender === 'feminin') gcls = ' fem';
+    else if (v.gender === 'neutrum') gcls = ' neut';
+    textHtml += '<div class="vocab-item">' +
+      '<span class="vocab-de' + gcls + '">' + esc(v.de) + '</span>' +
+      '<span class="vocab-ru"> — ' + esc(v.ru) + '</span>' +
+      (v.example ? '<div class="vocab-ex">' + esc(v.example) + '</div>' : '') +
+    '</div>';
+  });
+  textHtml += '</div>';
+
+  // Grammar focus
+  if (lesson.grammarFocus) {
+    textHtml += '<div class="stitle">Грамматический фокус</div>';
+    var gf = Array.isArray(lesson.grammarFocus) ? lesson.grammarFocus : [lesson.grammarFocus];
+    textHtml += '<div style="padding:0 0 12px">';
+    gf.forEach(function(g) {
+      textHtml += '<div style="font-size:.82rem;color:var(--text2);padding:4px 0">• ' + esc(g) + '</div>';
+    });
+    textHtml += '</div>';
+  }
+
+  // Questions
+  if (lesson.questions && lesson.questions.length) {
+    textHtml += '<div class="stitle">Вопросы к тексту</div>';
+    textHtml += '<div style="padding:0 0 12px">';
+    lesson.questions.forEach(function(q, i) {
+      textHtml += '<div style="font-size:.82rem;padding:4px 0"><strong>' + (i+1) + '.</strong> ' +
+        esc(q.q) + ' <span style="color:var(--dim)">→ ' + esc(q.a) + '</span></div>';
+    });
+    textHtml += '</div>';
+  }
+
+  return textHtml;
+}
+
+// ─── CLIPBOARD ───
+function copyText(btn, targetId) {
+  var el = document.getElementById(targetId);
+  if (!el) return;
+  var text = el.textContent;
+  try {
+    if (navigator.clipboard && window.isSecureContext) {
+      navigator.clipboard.writeText(text).then(function(){ showCopied(btn); });
+    } else { throw new Error('fallback'); }
+  } catch(e) {
+    var ta = document.createElement('textarea');
+    ta.value = text;
+    ta.style.cssText = 'position:fixed;opacity:0';
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    showCopied(btn);
+  }
+}
+function showCopied(btn) {
+  btn.textContent = '✅ Скопировано!';
+  btn.classList.add('ok');
+  setTimeout(function(){ btn.textContent = '📋 Скопировать промт'; btn.classList.remove('ok'); }, 2000);
+}
+
+// ─── ROUTING ───
+function parseHash() {
+  var h = location.hash.slice(1);
+  if (!h) return { view: 'list' };
+  var parts = h.split('/');
+  return { view: 'detail', lessonId: parts[0], tabId: parts[1] || PROMPT_TYPES[0].id };
+}
+
+function route() {
+  var r = parseHash();
+  if (r.view === 'detail') {
+    var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; });
+    if (lesson) {
+      document.getElementById('list').style.display = 'none';
+      document.getElementById('detail').style.display = 'block';
+      renderDetail(lesson, r.tabId);
+      attachExerciseListeners(lesson);
+      window.scrollTo(0, 0);
+      return;
+    }
+  }
+  document.getElementById('list').style.display = 'block';
+  document.getElementById('detail').style.display = 'none';
+}
+
+function goHome() { location.hash = ''; }
+
+function switchTab(lessonId, tabId) {
+  location.hash = lessonId + '/' + tabId;
+}
+
+// ─── UTILS ───
+function esc(s) {
+  if (!s) return '';
+  return s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+// ═══════════════════════════════════════
+// EXERCISES
+// ═══════════════════════════════════════
+
+function shuffle(arr) {
+  var a = arr.slice();
+  for (var i = a.length - 1; i > 0; i--) {
+    var j = Math.floor(Math.random() * (i + 1));
+    var t = a[i]; a[i] = a[j]; a[j] = t;
+  }
+  return a;
+}
+
+// ─── EXERCISES VIEW (5 accordions) ───
+function renderExercisesView(lesson) {
+  return '<div style="padding:4px 0">' +
+    '<details class="ex-accordion" id="ex-vquiz"><summary>🎯 Викторина по словам</summary>' +
+      '<div class="ex-body" id="ex-vquiz-body"></div></details>' +
+    '<details class="ex-accordion" id="ex-wmatch"><summary>🧩 Сопоставление слов</summary>' +
+      '<div class="ex-body" id="ex-wmatch-body"></div></details>' +
+    '<details class="ex-accordion" id="ex-article"><summary>🎨 Артикли и род</summary>' +
+      '<div class="ex-body" id="ex-article-body"></div></details>' +
+    '<details class="ex-accordion" id="ex-sbuild"><summary>🧱 Конструктор предложений</summary>' +
+      '<div class="ex-body" id="ex-sbuild-body"></div></details>' +
+    '<details class="ex-accordion" id="ex-comp"><summary>❓ Понимание текста</summary>' +
+      '<div class="ex-body" id="ex-comp-body"></div></details>' +
+    '<details class="ex-accordion" id="ex-fill"><summary>📝 Вставь слово в рассказ</summary>' +
+      '<div class="ex-body" id="ex-fill-body"></div></details>' +
+  '</div>';
+}
+
+// After rendering, attach toggle listeners
+var _origRoute = null;
+function attachExerciseListeners(lesson) {
+  var ids = [
+    ['ex-vquiz', function(){ initVocabQuiz(lesson, document.getElementById('ex-vquiz-body')); }],
+    ['ex-wmatch', function(){ initWordMatching(lesson, document.getElementById('ex-wmatch-body')); }],
+    ['ex-article', function(){ initArticleQuiz(lesson, document.getElementById('ex-article-body')); }],
+    ['ex-sbuild', function(){ initSentenceBuilder(lesson, document.getElementById('ex-sbuild-body')); }],
+    ['ex-comp', function(){ initComprehensionQuiz(lesson, document.getElementById('ex-comp-body')); }],
+    ['ex-fill', function(){ initFillStory(lesson, document.getElementById('ex-fill-body')); }],
+  ];
+  ids.forEach(function(pair) {
+    var el = document.getElementById(pair[0]);
+    if (el && !el._exInit) {
+      el._exInit = true;
+      el.addEventListener('toggle', function() {
+        if (el.open && !el._exLoaded) {
+          el._exLoaded = true;
+          pair[1]();
+        }
+      });
+    }
   });
 }
 
-const C=document.getElementById('container');
-T.forEach(t=>{
-  const url=`https://lingua.com/de/deutsch/lesen/${t.slug}/`;
-  const PL=[
-    {ico:'📖',cls:'pt1',lbl:'Тип 1',nm:'Перевод по предложениям',hint:'Genau! / ❌✓ + WAIT-режим',fn:makeTranslate},
-    {ico:'❓',cls:'pt2',lbl:'Тип 2',nm:'Викторина',hint:'4 раунда · КЛЮЧ · артикли · команды',fn:makeQuiz},
-    {ico:'🎓',cls:'pt3',lbl:'Тип 3',nm:'Полный урок DeutschWeg',hint:'7 шагов: слова → грамматика → разговор',fn:makeLesson}
-  ];
-  const html=`
-  <div class="tblock">
-    <div class="thead">
-      <div class="tnum">${t.num}</div>
-      <div class="tinfo">
-        <div class="tmeta">Lingua.com · ${t.level} · ${t.topic}</div>
-        <div class="ttitle">${t.title}</div>
-      </div>
-      <a class="tlink" href="${url}" target="_blank">🔗 Открыть</a>
-    </div>
-    <div class="cards">
-      ${PL.map((p,i)=>{
-        const cid=`c${t.num}-${i}`,pid=`p${t.num}-${i}`;
-        return `<div class="pc" id="${cid}">
-          <div class="phead" onclick="tog('${cid}')">
-            <div class="pleft">
-              <div class="pico ${p.cls}">${p.ico}</div>
-              <div>
-                <div class="plabel">${p.lbl}</div>
-                <div class="pname">${p.nm}</div>
-                <div class="phint">${p.hint}</div>
-              </div>
-            </div>
-            <div class="pright">
-              <button class="bcopy" onclick="cp(event,'${pid}')">📋 Скопировать</button>
-              <span class="chev">▼</span>
-            </div>
-          </div>
-          <div class="pbody">
-            <div class="codebox" id="${pid}">${esc(p.fn(t))}</div>
-          </div>
-        </div>`;
-      }).join('')}
-    </div>
-  </div>`;
-  C.insertAdjacentHTML('beforeend',html);
+// ─── 1. VOCAB QUIZ ───
+function initVocabQuiz(lesson, container) {
+  var vocab = shuffle(lesson.vocabulary.slice());
+  var idx = 0, correct = 0, mode = 'de2ru';
+
+  function render() {
+    if (idx >= vocab.length) {
+      var pct = Math.round(correct / vocab.length * 100);
+      container.innerHTML = '<div class="vq-result"><div class="score">' + correct + '/' + vocab.length + '</div>' +
+        '<div style="color:var(--muted);margin-top:4px">' + pct + '% правильно</div>' +
+        '<button class="sb-btn" style="margin-top:12px" onclick="this.closest(\'.ex-accordion\')._exLoaded=false;this.closest(\'.ex-accordion\').open=false;setTimeout(function(){document.getElementById(\'ex-vquiz\').open=true;document.getElementById(\'ex-vquiz\')._exLoaded=true;initVocabQuiz(LESSONS[0],document.getElementById(\'ex-vquiz-body\'))},50)">🔄 Заново</button></div>';
+      return;
+    }
+    var w = vocab[idx];
+    var question = mode === 'de2ru' ? w.de : w.ru;
+    var answer = mode === 'de2ru' ? w.ru : w.de;
+    var distractors = [];
+    var pool = lesson.vocabulary.filter(function(v){ return v !== w; });
+    pool = shuffle(pool).slice(0, 3);
+    distractors = pool.map(function(v){ return mode === 'de2ru' ? v.ru : v.de; });
+    var opts = shuffle([answer].concat(distractors));
+
+    container.innerHTML =
+      '<div class="ex-mode">' +
+        '<button class="ex-mode-btn' + (mode==='de2ru'?' active':'') + '" onclick="document.getElementById(\'ex-vquiz\')._exLoaded=false;document.getElementById(\'ex-vquiz\')._exLoaded=true;window._vqMode=\'de2ru\';initVocabQuiz(LESSONS[0],document.getElementById(\'ex-vquiz-body\'))">DE → RU</button>' +
+        '<button class="ex-mode-btn' + (mode==='ru2de'?' active':'') + '" onclick="document.getElementById(\'ex-vquiz\')._exLoaded=false;document.getElementById(\'ex-vquiz\')._exLoaded=true;window._vqMode=\'ru2de\';initVocabQuiz(LESSONS[0],document.getElementById(\'ex-vquiz-body\'))">RU → DE</button>' +
+      '</div>' +
+      '<div class="ex-progress"><div class="ex-progress-bar"><div class="ex-progress-fill" style="width:' + (idx/vocab.length*100) + '%"></div></div>' +
+        '<div class="ex-progress-text">Вопрос ' + (idx+1) + ' из ' + vocab.length + '</div></div>' +
+      '<div class="vq-card"><div class="vq-word">' + esc(question) + '</div>' +
+        (w.example ? '<div class="vq-hint">' + esc(w.example) + '</div>' : '') +
+        '<div class="vq-options" id="vq-opts">' +
+          opts.map(function(o, i){ return '<button class="vq-opt" data-i="' + i + '" data-val="' + esc(o) + '">' + esc(o) + '</button>'; }).join('') +
+        '</div></div>';
+
+    document.querySelectorAll('#vq-opts .vq-opt').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var btns = document.querySelectorAll('#vq-opts .vq-opt');
+        btns.forEach(function(b){ b.disabled = true; });
+        if (btn.dataset.val === answer) {
+          btn.classList.add('correct');
+          correct++;
+          setTimeout(function(){ idx++; render(); }, 800);
+        } else {
+          btn.classList.add('wrong');
+          btns.forEach(function(b){ if (b.dataset.val === answer) b.classList.add('correct'); });
+          setTimeout(function(){ idx++; render(); }, 1500);
+        }
+      });
+    });
+  }
+
+  if (window._vqMode) { mode = window._vqMode; }
+  render();
+}
+
+// ─── 2. WORD MATCHING ───
+function initWordMatching(lesson, container) {
+  var words = shuffle(lesson.vocabulary.slice()).slice(0, 10);
+  var deWords = shuffle(words.map(function(w,i){ return {text:w.de, idx:i}; }));
+  var ruWords = shuffle(words.map(function(w,i){ return {text:w.ru, idx:i}; }));
+  var matched = 0, selDe = null;
+
+  container.innerHTML =
+    '<div class="ex-progress"><div class="ex-progress-bar"><div class="ex-progress-fill" id="wm-fill" style="width:0%"></div></div>' +
+      '<div class="ex-progress-text" id="wm-text">0 из ' + words.length + '</div></div>' +
+    '<div class="wmatch-grid">' +
+      '<div><div class="wmatch-col-title">Немецкий</div><div id="wm-de">' +
+        deWords.map(function(w){ return '<div class="wmatch-word" data-idx="' + w.idx + '" data-side="de">' + esc(w.text) + '</div>'; }).join('') +
+      '</div></div>' +
+      '<div><div class="wmatch-col-title">Русский</div><div id="wm-ru">' +
+        ruWords.map(function(w){ return '<div class="wmatch-word" data-idx="' + w.idx + '" data-side="ru">' + esc(w.text) + '</div>'; }).join('') +
+      '</div></div>' +
+    '</div>';
+
+  container.querySelectorAll('.wmatch-word').forEach(function(el) {
+    el.addEventListener('click', function() {
+      if (el.classList.contains('matched')) return;
+      if (el.dataset.side === 'de') {
+        container.querySelectorAll('.wmatch-word[data-side="de"]').forEach(function(e){ e.classList.remove('selected'); });
+        el.classList.add('selected');
+        selDe = el.dataset.idx;
+      } else if (el.dataset.side === 'ru' && selDe !== null) {
+        if (el.dataset.idx === selDe) {
+          // correct match
+          el.classList.add('matched');
+          container.querySelector('.wmatch-word[data-side="de"][data-idx="' + selDe + '"]').classList.add('matched');
+          container.querySelector('.wmatch-word[data-side="de"][data-idx="' + selDe + '"]').classList.remove('selected');
+          matched++;
+          document.getElementById('wm-fill').style.width = (matched/words.length*100) + '%';
+          document.getElementById('wm-text').textContent = matched + ' из ' + words.length;
+          selDe = null;
+        } else {
+          el.classList.add('wrong');
+          setTimeout(function(){ el.classList.remove('wrong'); }, 500);
+        }
+      }
+    });
+  });
+}
+
+// ─── 3. ARTICLE QUIZ ───
+function initArticleQuiz(lesson, container) {
+  var nouns = lesson.vocabulary.filter(function(v){ return v.gender; });
+  if (!nouns.length) { container.innerHTML = '<div style="color:var(--dim)">Нет существительных в словаре.</div>'; return; }
+  var solved = 0;
+
+  container.innerHTML =
+    '<div class="aq-legend">' +
+      '<div class="aq-legend-item"><span style="color:var(--gram-masc)">♂</span> der — мужской</div>' +
+      '<div class="aq-legend-item"><span style="color:var(--gram-fem)">♀</span> die — женский</div>' +
+      '<div class="aq-legend-item"><span style="color:var(--gram-neut)">⚪</span> das — средний</div>' +
+    '</div>' +
+    '<div class="ex-progress"><div class="ex-progress-bar"><div class="ex-progress-fill" id="aq-fill" style="width:0%"></div></div>' +
+      '<div class="ex-progress-text" id="aq-text">0/' + nouns.length + ' правильных</div></div>' +
+    '<div class="aq-grid">' +
+      nouns.map(function(n, i) {
+        var parts = n.de.split(/\s+/);
+        var article = parts[0].toLowerCase();
+        var noun = parts.slice(1).join(' ');
+        return '<div class="aq-item" id="aq-' + i + '" data-art="' + article + '">' +
+          '<div class="aq-noun">' + esc(noun) + '</div>' +
+          '<div class="aq-trans">' + esc(n.ru) + '</div>' +
+          '<div class="aq-btns">' +
+            '<button class="aq-btn der" data-a="der">der</button>' +
+            '<button class="aq-btn die" data-a="die">die</button>' +
+            '<button class="aq-btn das" data-a="das">das</button>' +
+          '</div></div>';
+      }).join('') +
+    '</div>';
+
+  container.querySelectorAll('.aq-item').forEach(function(item) {
+    var correct = item.dataset.art;
+    var answered = false;
+    item.querySelectorAll('.aq-btn').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        if (answered) return;
+        if (btn.dataset.a === correct) {
+          answered = true;
+          btn.classList.add('correct');
+          item.classList.add('solved');
+          item.querySelectorAll('.aq-btn').forEach(function(b){ b.disabled = true; });
+          solved++;
+          document.getElementById('aq-fill').style.width = (solved/nouns.length*100) + '%';
+          document.getElementById('aq-text').textContent = solved + '/' + nouns.length + ' правильных';
+        } else {
+          btn.classList.add('wrong');
+          setTimeout(function(){ btn.classList.remove('wrong'); }, 500);
+        }
+      });
+    });
+  });
+}
+
+// ─── 4. SENTENCE BUILDER ───
+function initSentenceBuilder(lesson, container) {
+  var sentences = lesson.text.replace(/\n+/g, ' ').split(/(?<=[.!?])\s+/).filter(function(s){
+    var wc = s.trim().split(/\s+/).length;
+    return wc >= 4 && wc <= 14;
+  });
+  sentences = shuffle(sentences).slice(0, 12);
+  if (!sentences.length) { container.innerHTML = '<div style="color:var(--dim)">Нет подходящих предложений.</div>'; return; }
+
+  // Translation map from lesson data
+  var trMap = (lesson.sentenceTranslations || {});
+
+  container.innerHTML = sentences.map(function(s, i) {
+    var words = s.trim().split(/\s+/);
+    var shuffled = shuffle(words.slice());
+    var hint = trMap[s.trim()] || '';
+    return '<div class="sb-card" id="sb-card-' + i + '">' +
+      '<div class="sb-num">Предложение ' + (i+1) + ' из ' + sentences.length + '</div>' +
+      '<div class="sb-hint-row">' +
+        '<button class="sb-btn sb-hint-toggle" onclick="sbToggleHint(' + i + ')">' +
+          '💡 Подсказка' +
+        '</button>' +
+        '<div class="sb-hint" id="sb-hint-' + i + '" style="display:none">' +
+          (hint ? esc(hint) : '<span style="color:var(--dim)">Составьте предложение из фрагментов</span>') +
+        '</div>' +
+      '</div>' +
+      '<div class="sb-result" id="sb-res-' + i + '"></div>' +
+      '<div class="sb-pool" id="sb-pool-' + i + '">' +
+        shuffled.map(function(w, j){ return '<span class="sb-frag" data-w="' + esc(w) + '" data-si="' + i + '">' + esc(w) + '</span>'; }).join('') +
+      '</div>' +
+      '<div class="sb-actions">' +
+        '<button class="sb-btn" onclick="sbUndo(' + i + ')">← Убрать</button>' +
+        '<button class="sb-btn" onclick="sbCheck(' + i + ',\'' + esc(words.join(' ')).replace(/'/g, "\\'") + '\')">✓ Проверить</button>' +
+        '<button class="sb-btn" onclick="sbReset(' + i + ')">↺ Сброс</button>' +
+        '<button class="sb-btn" id="sb-ans-btn-' + i + '" onclick="sbToggleAnswer(' + i + ')">👁 Ответ</button>' +
+      '</div>' +
+      '<div class="sb-feedback" id="sb-fb-' + i + '"></div>' +
+      '<div class="sb-answer" id="sb-ans-' + i + '" style="display:none">' + esc(words.join(' ')) + '</div>' +
+    '</div>';
+  }).join('');
+
+  container.querySelectorAll('.sb-frag').forEach(function(frag) {
+    frag.addEventListener('click', function() {
+      if (frag.classList.contains('used')) return;
+      var si = frag.dataset.si;
+      var res = document.getElementById('sb-res-' + si);
+      frag.classList.add('used');
+      var span = document.createElement('span');
+      span.className = 'sb-result-word';
+      span.textContent = frag.dataset.w;
+      span.dataset.fragId = Array.from(frag.parentNode.children).indexOf(frag);
+      span.dataset.si = si;
+      span.addEventListener('click', function() {
+        var pool = document.getElementById('sb-pool-' + si);
+        pool.children[parseInt(span.dataset.fragId)].classList.remove('used');
+        span.remove();
+      });
+      res.appendChild(span);
+    });
+  });
+}
+
+window.sbToggleHint = function(i) {
+  var el = document.getElementById('sb-hint-' + i);
+  el.style.display = el.style.display === 'none' ? 'block' : 'none';
+};
+
+window.sbToggleAnswer = function(i) {
+  var el = document.getElementById('sb-ans-' + i);
+  var btn = document.getElementById('sb-ans-btn-' + i);
+  if (el.style.display === 'none') {
+    el.style.display = 'block';
+    btn.textContent = '🙈 Скрыть';
+  } else {
+    el.style.display = 'none';
+    btn.textContent = '👁 Ответ';
+  }
+};
+
+window.sbUndo = function(i) {
+  var res = document.getElementById('sb-res-' + i);
+  var last = res.lastElementChild;
+  if (last) {
+    var pool = document.getElementById('sb-pool-' + i);
+    pool.children[parseInt(last.dataset.fragId)].classList.remove('used');
+    last.remove();
+  }
+};
+
+window.sbCheck = function(i, correct) {
+  var res = document.getElementById('sb-res-' + i);
+  var fb = document.getElementById('sb-fb-' + i);
+  var built = Array.from(res.children).map(function(c){ return c.textContent; }).join(' ');
+  if (built === correct) {
+    fb.className = 'sb-feedback ok';
+    fb.textContent = '✅ Richtig!';
+    document.getElementById('sb-card-' + i).classList.add('done');
+  } else {
+    fb.className = 'sb-feedback err';
+    fb.textContent = '❌ Попробуйте ещё раз';
+  }
+};
+
+window.sbReset = function(i) {
+  var res = document.getElementById('sb-res-' + i);
+  var pool = document.getElementById('sb-pool-' + i);
+  var fb = document.getElementById('sb-fb-' + i);
+  res.innerHTML = '';
+  pool.querySelectorAll('.sb-frag').forEach(function(f){ f.classList.remove('used'); });
+  fb.textContent = '';
+  document.getElementById('sb-card-' + i).classList.remove('done');
+};
+
+// ─── 5. COMPREHENSION QUIZ (like lingua.com) ───
+function initComprehensionQuiz(lesson, container) {
+  var qs = lesson.comprehensionQuiz;
+  if (!qs || !qs.length) { container.innerHTML = '<div style="color:var(--dim)">Вопросы не добавлены.</div>'; return; }
+  var idx = 0, correct = 0;
+
+  function renderQ() {
+    if (idx >= qs.length) {
+      var pct = Math.round(correct / qs.length * 100);
+      container.innerHTML = '<div class="vq-result"><div class="score">' + correct + '/' + qs.length + '</div>' +
+        '<div style="color:var(--muted);margin-top:4px">' + pct + '% правильно</div>' +
+        '<div style="margin-top:8px;font-size:.8rem;color:var(--text2)">' +
+          (pct === 100 ? '🎉 Отлично! Текст полностью понят.' : pct >= 60 ? '👍 Хорошо! Перечитайте текст для лучшего понимания.' : '📖 Прочитайте текст ещё раз внимательнее.') +
+        '</div></div>';
+      return;
+    }
+    var q = qs[idx];
+    var opts = shuffle(q.options.slice());
+    container.innerHTML =
+      '<div class="ex-progress"><div class="ex-progress-bar"><div class="ex-progress-fill" style="width:' + (idx/qs.length*100) + '%"></div></div>' +
+        '<div class="ex-progress-text">Frage ' + (idx+1) + ' von ' + qs.length + '</div></div>' +
+      '<div class="vq-card">' +
+        '<div class="vq-word" style="font-size:1.1rem">' + esc(q.question) + '</div>' +
+        '<div class="vq-options" id="cq-opts">' +
+          opts.map(function(o){ return '<button class="vq-opt" data-val="' + esc(o) + '">' + esc(o) + '</button>'; }).join('') +
+        '</div>' +
+      '</div>';
+
+    document.querySelectorAll('#cq-opts .vq-opt').forEach(function(btn) {
+      btn.addEventListener('click', function() {
+        var btns = document.querySelectorAll('#cq-opts .vq-opt');
+        btns.forEach(function(b){ b.disabled = true; });
+        if (btn.dataset.val === q.correct) {
+          btn.classList.add('correct');
+          correct++;
+          setTimeout(function(){ idx++; renderQ(); }, 800);
+        } else {
+          btn.classList.add('wrong');
+          btns.forEach(function(b){ if (b.dataset.val === q.correct) b.classList.add('correct'); });
+          setTimeout(function(){ idx++; renderQ(); }, 1800);
+        }
+      });
+    });
+  }
+  renderQ();
+}
+
+// ─── 6. FILL-IN STORY (like lir-comics) ───
+function initFillStory(lesson, container) {
+  var story = lesson.fillStory;
+  if (!story) { container.innerHTML = '<div style="color:var(--dim)">Упражнение не добавлено.</div>'; return; }
+
+  var blanks = story.blanks; // [{answer:'Flughafen', hint:'аэропорт'}, ...]
+  var solved = 0;
+
+  // Build HTML — replace {0}, {1}, etc. with input fields
+  var storyHtml = story.text;
+  blanks.forEach(function(b, i) {
+    var placeholder = '{' + i + '}';
+    // Extract only Russian part of hint (before parentheses with German)
+    var hintRu = b.hint.replace(/\s*\(.*\)\s*$/, '').trim();
+    var hintFull = b.hint; // full hint with article info for tooltip
+    var inputHtml = '<span class="fill-blank-wrap">' +
+      '<input type="text" class="fill-input" id="fill-' + i + '" data-idx="' + i + '" ' +
+        'placeholder="..." autocomplete="off" spellcheck="false" title="' + esc(hintFull) + '">' +
+      '<span class="fill-hint">(' + esc(hintRu) + ')</span>' +
+    '</span>';
+    storyHtml = storyHtml.split(placeholder).join(inputHtml);
+  });
+
+  container.innerHTML =
+    '<div style="font-size:.78rem;color:var(--muted);margin-bottom:8px">' +
+      'Впишите немецкие слова в пропуски. Подсказки в скобках — на русском.' +
+    '</div>' +
+    '<div class="ex-progress"><div class="ex-progress-bar"><div class="ex-progress-fill" id="fill-prog" style="width:0%"></div></div>' +
+      '<div class="ex-progress-text" id="fill-text">0/' + blanks.length + '</div></div>' +
+    '<div class="fill-story-text">' + storyHtml + '</div>' +
+    '<div style="margin-top:12px">' +
+      '<button class="sb-btn" onclick="fillCheckAll()">✓ Проверить всё</button>' +
+      '<button class="sb-btn" style="margin-left:6px" id="fill-toggle-btn" onclick="fillToggleAnswers()">👁 Показать ответы</button>' +
+    '</div>';
+
+  // Check on input blur or Enter
+  container.querySelectorAll('.fill-input').forEach(function(inp) {
+    function check() {
+      var i = parseInt(inp.dataset.idx);
+      var b = blanks[i];
+      var val = inp.value.trim().toLowerCase();
+      var ans = b.answer.toLowerCase();
+      // Also accept without article for nouns
+      var ansNoArt = ans.replace(/^(der|die|das)\s+/i, '');
+      if (val === ans || val === ansNoArt) {
+        if (!inp.classList.contains('fill-correct')) {
+          inp.classList.remove('fill-wrong');
+          inp.classList.add('fill-correct');
+          inp.value = b.answer;
+          inp.disabled = true;
+          solved++;
+          document.getElementById('fill-prog').style.width = (solved/blanks.length*100) + '%';
+          document.getElementById('fill-text').textContent = solved + '/' + blanks.length;
+        }
+      } else if (val.length > 0) {
+        inp.classList.add('fill-wrong');
+        inp.classList.remove('fill-correct');
+      }
+    }
+    inp.addEventListener('blur', check);
+    inp.addEventListener('keydown', function(e) {
+      if (e.key === 'Enter') { check(); e.preventDefault(); }
+    });
+  });
+}
+
+window.fillCheckAll = function() {
+  document.querySelectorAll('.fill-input').forEach(function(inp) {
+    inp.dispatchEvent(new Event('blur'));
+  });
+};
+
+window._fillAnswersShown = false;
+window._fillSavedValues = {};
+
+window.fillToggleAnswers = function() {
+  var inputs = document.querySelectorAll('.fill-input');
+  var btn = document.getElementById('fill-toggle-btn');
+  var r = parseHash();
+  var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; }) || LESSONS[0];
+
+  if (!window._fillAnswersShown) {
+    // Show answers — save current values first
+    window._fillSavedValues = {};
+    inputs.forEach(function(inp) {
+      var i = parseInt(inp.dataset.idx);
+      if (!inp.classList.contains('fill-correct')) {
+        window._fillSavedValues[i] = inp.value;
+        inp.value = lesson.fillStory.blanks[i].answer;
+        inp.classList.add('fill-shown');
+        inp.disabled = true;
+      }
+    });
+    btn.textContent = '🙈 Скрыть ответы';
+    window._fillAnswersShown = true;
+  } else {
+    // Hide answers — restore saved values
+    inputs.forEach(function(inp) {
+      var i = parseInt(inp.dataset.idx);
+      if (inp.classList.contains('fill-shown')) {
+        inp.value = window._fillSavedValues[i] || '';
+        inp.classList.remove('fill-shown');
+        inp.disabled = false;
+      }
+    });
+    btn.textContent = '👁 Показать ответы';
+    window._fillAnswersShown = false;
+  }
+};
+
+window.fillReset = function() {
+  var inputs = document.querySelectorAll('.fill-input');
+  var btn = document.getElementById('fill-toggle-btn');
+  inputs.forEach(function(inp) {
+    inp.value = '';
+    inp.disabled = false;
+    inp.classList.remove('fill-correct', 'fill-wrong', 'fill-shown');
+  });
+  document.getElementById('fill-prog').style.width = '0%';
+  document.getElementById('fill-text').textContent = '0/' + inputs.length;
+  btn.textContent = '👁 Показать ответы';
+  window._fillAnswersShown = false;
+  window._fillSavedValues = {};
+  // Reset solved counter — reinit
+  var r = parseHash();
+  var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; }) || LESSONS[0];
+  var el = document.getElementById('ex-fill');
+  if (el) { el._exLoaded = false; el.open = false; setTimeout(function(){ el.open = true; el._exLoaded = true; initFillStory(lesson, document.getElementById('ex-fill-body')); }, 50); }
+};
+
+// ─── INIT ───
+window.addEventListener('hashchange', route);
+window.addEventListener('DOMContentLoaded', function() {
+  renderStats();
+  renderGrid();
+  route();
 });
 </script>
+
 </body>
 </html>
