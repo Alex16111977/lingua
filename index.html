@@ -841,7 +841,7 @@ function initVocabQuiz(lesson, container) {
       var pct = Math.round(correct / vocab.length * 100);
       container.innerHTML = '<div class="vq-result"><div class="score">' + correct + '/' + vocab.length + '</div>' +
         '<div style="color:var(--muted);margin-top:4px">' + pct + '% правильно</div>' +
-        '<button class="sb-btn" style="margin-top:12px" onclick="this.closest(\'.ex-accordion\')._exLoaded=false;this.closest(\'.ex-accordion\').open=false;setTimeout(function(){document.getElementById(\'ex-vquiz\').open=true;document.getElementById(\'ex-vquiz\')._exLoaded=true;initVocabQuiz(LESSONS[0],document.getElementById(\'ex-vquiz-body\'))},50)">🔄 Заново</button></div>';
+        '<button class="sb-btn" style="margin-top:12px" onclick="this.closest(\'.ex-accordion\')._exLoaded=false;this.closest(\'.ex-accordion\').open=false;setTimeout(function(){document.getElementById(\'ex-vquiz\').open=true;document.getElementById(\'ex-vquiz\')._exLoaded=true;initVocabQuiz(LESSONS.find(function(l){return l.id===parseHash().lessonId}),document.getElementById(\'ex-vquiz-body\'))},50)">🔄 Заново</button></div>';
       return;
     }
     var w = vocab[idx];
@@ -855,8 +855,8 @@ function initVocabQuiz(lesson, container) {
 
     container.innerHTML =
       '<div class="ex-mode">' +
-        '<button class="ex-mode-btn' + (mode==='de2ru'?' active':'') + '" onclick="document.getElementById(\'ex-vquiz\')._exLoaded=false;document.getElementById(\'ex-vquiz\')._exLoaded=true;window._vqMode=\'de2ru\';initVocabQuiz(LESSONS[0],document.getElementById(\'ex-vquiz-body\'))">DE → RU</button>' +
-        '<button class="ex-mode-btn' + (mode==='ru2de'?' active':'') + '" onclick="document.getElementById(\'ex-vquiz\')._exLoaded=false;document.getElementById(\'ex-vquiz\')._exLoaded=true;window._vqMode=\'ru2de\';initVocabQuiz(LESSONS[0],document.getElementById(\'ex-vquiz-body\'))">RU → DE</button>' +
+        '<button class="ex-mode-btn' + (mode==='de2ru'?' active':'') + '" onclick="document.getElementById(\'ex-vquiz\')._exLoaded=false;document.getElementById(\'ex-vquiz\')._exLoaded=true;window._vqMode=\'de2ru\';initVocabQuiz(LESSONS.find(function(l){return l.id===parseHash().lessonId}),document.getElementById(\'ex-vquiz-body\'))">DE → RU</button>' +
+        '<button class="ex-mode-btn' + (mode==='ru2de'?' active':'') + '" onclick="document.getElementById(\'ex-vquiz\')._exLoaded=false;document.getElementById(\'ex-vquiz\')._exLoaded=true;window._vqMode=\'ru2de\';initVocabQuiz(LESSONS.find(function(l){return l.id===parseHash().lessonId}),document.getElementById(\'ex-vquiz-body\'))">RU → DE</button>' +
       '</div>' +
       '<div class="ex-progress"><div class="ex-progress-bar"><div class="ex-progress-fill" style="width:' + (idx/vocab.length*100) + '%"></div></div>' +
         '<div class="ex-progress-text">Вопрос ' + (idx+1) + ' из ' + vocab.length + '</div></div>' +
