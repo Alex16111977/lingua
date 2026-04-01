@@ -809,6 +809,7 @@ function renderExercisesView(lesson) {
 // After rendering, attach toggle listeners
 var _origRoute = null;
 function attachExerciseListeners(lesson) {
+  window._vqMode = null;
   var ids = [
     ['ex-vquiz', function(){ initVocabQuiz(lesson, document.getElementById('ex-vquiz-body')); }],
     ['ex-wmatch', function(){ initWordMatching(lesson, document.getElementById('ex-wmatch-body')); }],
@@ -1150,6 +1151,9 @@ function initFillStory(lesson, container) {
   var story = lesson.fillStory;
   if (!story) { container.innerHTML = '<div style="color:var(--dim)">Упражнение не добавлено.</div>'; return; }
 
+  window._fillAnswersShown = false;
+  window._fillSavedValues = {};
+
   var blanks = story.blanks; // [{answer:'Flughafen', hint:'аэропорт'}, ...]
   var solved = 0;
 
@@ -1224,7 +1228,8 @@ window.fillToggleAnswers = function() {
   var inputs = document.querySelectorAll('.fill-input');
   var btn = document.getElementById('fill-toggle-btn');
   var r = parseHash();
-  var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; }) || LESSONS[0];
+  var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; });
+  if (!lesson) return;
 
   if (!window._fillAnswersShown) {
     // Show answers — save current values first
@@ -1270,7 +1275,8 @@ window.fillReset = function() {
   window._fillSavedValues = {};
   // Reset solved counter — reinit
   var r = parseHash();
-  var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; }) || LESSONS[0];
+  var lesson = LESSONS.find(function(l){ return l.id === r.lessonId; });
+  if (!lesson) return;
   var el = document.getElementById('ex-fill');
   if (el) { el._exLoaded = false; el.open = false; setTimeout(function(){ el.open = true; el._exLoaded = true; initFillStory(lesson, document.getElementById('ex-fill-body')); }, 50); }
 };
